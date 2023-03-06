@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:date_field/date_field.dart';
+import 'package:modernlogintute/pages/Homepage.dart';
 import 'package:modernlogintute/pages/login_page.dart';
 
 class registerForm {
@@ -42,19 +43,19 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   Future<void> register(registerForm form) async {
     final url = Uri.parse(
-        'http://127.0.0.1:8000/register_flutter'); // insert correct API endpoint
+        'http://127.0.0.1:8000/register'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
     final body = json.encode(form.toJson());
     final response = await http.post(url, headers: headers, body: body);
 
     if (response.statusCode == 200) {
       // Successful login
-      print("successfully sent Login POST");
+      print("successfully registered");
       final token = json.decode(response.body)['token'];
       // Save the token to local storage or global state
     } else {
       // Failed login
-      throw Exception('Failed to login');
+      throw Exception('Failed to register');
     }
   }
 
@@ -115,6 +116,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     phonenumber: _phoneNumberController.text.trim(),
                     dateofbirth: _selectedDate);
                 register(form);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Homepage()),
+                );
               },
               child: Text('Register'),
             ),

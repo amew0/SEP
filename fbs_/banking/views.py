@@ -108,7 +108,7 @@ def login_view_flutter(request):
         if user is not None:
             login(request, user)
             token = str(generate_tokens(user))
-            return JsonResponse({'token': token}, status=500)
+            return JsonResponse({'user': user}, status=500)
         else:
             return JsonResponse({'error': 'Invalid credentials'}, status=400)
 
