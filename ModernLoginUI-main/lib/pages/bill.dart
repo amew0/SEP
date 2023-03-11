@@ -1,12 +1,17 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:date_field/date_field.dart';
 
 class billForm {
   String bill_name;
   String bill_amount;
   String bill_description;
+  String date;
   bool bill_scheduled_monthly;
+
   dynamic user;
   billForm({
     required this.bill_name,
@@ -14,6 +19,7 @@ class billForm {
     required this.bill_amount,
     required this.bill_description,
     required this.bill_scheduled_monthly,
+    required this.date,
   });
 
   Map<String, dynamic> toJson() => {
@@ -22,17 +28,18 @@ class billForm {
         'bill_description': bill_description,
         'bill_scheduled_monthly': bill_scheduled_monthly,
         'user': user,
+        'date': date,
       };
 }
 
-class MyFormPopup extends StatefulWidget {
+class MyBillPopup extends StatefulWidget {
   @override
   dynamic user;
-  MyFormPopup({required this.user});
-  _MyFormPopupState createState() => _MyFormPopupState();
+  MyBillPopup({required this.user});
+  _MyBillPopupState createState() => _MyBillPopupState();
 }
 
-class _MyFormPopupState extends State<MyFormPopup> {
+class _MyBillPopupState extends State<MyBillPopup> {
   final _formKey = GlobalKey<FormState>();
   // String? bill_name = '';
   // String? bill_amount = '';
@@ -128,14 +135,28 @@ class _MyFormPopupState extends State<MyFormPopup> {
         ),
         ElevatedButton(
           onPressed: () async {
+            DateTime date;
+            final form;
             if (_formKey.currentState!.validate()) {
               _formKey.currentState!.save();
-              final form = billForm(
-                  bill_name: bill_name.text.trim(),
-                  bill_amount: bill_amount.text.trim(),
-                  bill_description: bill_description.text.trim(),
-                  bill_scheduled_monthly: _isChecked,
-                  user: widget.user);
+              if (_isChecked == true) {
+                date = DateTime.now();
+                form = billForm(
+                    bill_name: bill_name.text.trim(),
+                    bill_amount: bill_amount.text.trim(),
+                    bill_description: bill_description.text.trim(),
+                    bill_scheduled_monthly: _isChecked,
+                    user: widget.user,
+                    date: DateFormat('yyyy-MM-dd').format(date));
+              } else {
+                form = billForm(
+                    bill_name: bill_name.text.trim(),
+                    bill_amount: bill_amount.text.trim(),
+                    bill_description: bill_description.text.trim(),
+                    bill_scheduled_monthly: _isChecked,
+                    user: widget.user,
+                    date: "none");
+              }
               await bill(form);
               // Do something with the form data, e.g. submit to server
               Navigator.pop(context);

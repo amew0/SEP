@@ -114,7 +114,7 @@ class _HomepageState extends State<Homepage> {
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
-                              return MyFormPopup(user: widget.user);
+                              return MyBillPopup(user: widget.user);
                             },
                           );
                         }

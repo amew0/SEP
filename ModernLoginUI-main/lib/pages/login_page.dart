@@ -2,10 +2,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/http.dart';
-import 'package:modernlogintute/components/my_button.dart';
 import 'package:modernlogintute/components/my_textfield.dart';
-import 'package:modernlogintute/components/square_tile.dart';
 import 'package:modernlogintute/pages/Homepage.dart';
 import 'package:modernlogintute/pages/Registrationpage.dart';
 
@@ -51,7 +48,6 @@ class LoginPage extends StatelessWidget {
       // print(json.decode(response.body)[0]);
       user = json.decode(response.body)[0];
       // print(user.runtimeType);
-      print(user[1]);
       // await storeToken(user[1]);
       // print(json.decode(response.body)['token']);
       // print(user.username);
