@@ -51,9 +51,16 @@ class User (AbstractUser):
         return f"{self.username} ({self.privilege})"
     def serialize(self):
         return {
+            "UserId" : self.id,
+            "AccountId" : self.account.id,
             "Username" : self.username,
             "Date of birth" : self.dateOfBirth,
-            "Privilege" : self.privilege
+            "Privilege" : self.privilege,
+            "Balance"  : self.account.balance,
+            "Account"  : self.account.accountNumber,
+            "Phone"  : self.account.phoneNumber
+            # "Linked"  : self.account.linked_users
+
         }
     def create_user(self, username, email=None, password=None, **extra_fields):
         """
@@ -136,6 +143,37 @@ class Bill (models.Model):
     billMonthly = models.BooleanField(
         default=False
     )
+    date = models.DateField(null=True)
     
     def __str__(self):
         return f"{self.billType} (AED{self.billAmount})"
+    
+
+
+class Debit (models.Model):
+    
+    accountNumDebit = models.ForeignKey(
+        CreditCardDetail,
+        on_delete = models.SET_NULL, 
+        null=True, 
+        related_name = "accountNumDebit")
+    DebitName = models.CharField(
+        max_length = 25,
+        )
+    DebitFinalDate = models.TextField(
+        blank=True,
+        null=True
+    )
+    DebitAmount = models.DecimalField(
+        max_digits = 10, 
+        decimal_places = 2,
+        default=0.00
+    )
+    DebitInstallmentMonthly = models.DecimalField(
+        max_digits = 10, 
+        decimal_places = 2,
+        default=0.00
+    )
+    
+    def __str__(self):
+        return f"{self.DebitName} (AED{self.DebitAmount})"

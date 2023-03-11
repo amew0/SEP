@@ -7,25 +7,31 @@ import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:date_field/date_field.dart';
 import 'package:modernlogintute/pages/Homepage.dart';
 import 'package:modernlogintute/pages/login_page.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 
 class registerForm {
   String username;
   String phonenumber;
-  DateTime dateofbirth;
+  String dateofbirth;
+  String? privilege;
   registerForm(
       {required this.username,
       required this.phonenumber,
-      required this.dateofbirth});
+      required this.dateofbirth,
+      required this.privilege});
 
   Map<String, dynamic> toJson() => {
         'username': username,
         'phonenumber': phonenumber,
         'dateofbirth': dateofbirth,
+        'privilege': privilege
       };
 }
 
 class RegistrationPage extends StatefulWidget {
   @override
+  final String message;
+  RegistrationPage({required this.message});
   _RegistrationPageState createState() => _RegistrationPageState();
 }
 
@@ -36,31 +42,60 @@ DateTimeField(
         onShowPicker}) {}
 
 class _RegistrationPageState extends State<RegistrationPage> {
-  TextEditingController _usernameController = TextEditingController();
-  TextEditingController _phoneNumberController = TextEditingController();
-  TextEditingController _dateOfBirthController = TextEditingController();
-  late DateTime _selectedDate;
+  // final String message;
 
-  Future<void> register(registerForm form) async {
+  // _RegistrationPage({required this.message});
+  final _usernameController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
+  final _dateOfBirthController = TextEditingController();
+  late DateTime _selectedDate;
+  String? selectedOption = "Main";
+
+  // Future<void> storeToken(String token) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   await prefs.setString('auth_token', token);
+  // }
+
+  // Future<String?> getToken() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   return prefs.getString('auth_token');
+  // }
+
+  Future<dynamic> register(registerForm form) async {
     final url = Uri.parse(
         'http://127.0.0.1:8000/register'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
+    print(form);
     final body = json.encode(form.toJson());
+    print(body);
     final response = await http.post(url, headers: headers, body: body);
-
+    dynamic user;
+    // final user=0;
     if (response.statusCode == 200) {
       // Successful login
       print("successfully registered");
-      final token = json.decode(response.body)['token'];
+      user = json.decode(response.body)[0];
+      if (widget.message != "family") {
+        // storeToken(user[1]);
+      }
+
       // Save the token to local storage or global state
     } else {
       // Failed login
+
       throw Exception('Failed to register');
     }
+    print(user);
+    return user;
   }
 
   @override
   Widget build(BuildContext context) {
+    bool hide = true;
+    if (widget.message == "family") {
+      hide = false;
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Registration Page'),
@@ -70,6 +105,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Visibility(
+              visible: !hide,
+              child:
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Text(
+                  'Add a Family member',
+                  style: TextStyle(color: Colors.grey[700], fontSize: 35),
+                ),
+              ]),
+            ),
             TextFormField(
               controller: _usernameController,
               decoration: InputDecoration(
@@ -106,56 +151,100 @@ class _RegistrationPageState extends State<RegistrationPage> {
               },
             ),
             SizedBox(height: 16.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  'Privilege: ',
+                  style: TextStyle(color: Colors.grey[700]),
+                ),
+                DropdownButton(
+                  value: selectedOption,
+                  items: [
+                    DropdownMenuItem(
+                      value: "Main",
+                      child: Text('Main'),
+                    ),
+                    DropdownMenuItem(
+                      value: "Sub",
+                      child: Text('Sub'),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    if (widget.message == "family") {
+                      setState(() {
+                        selectedOption = value;
+                      });
+                    }
+                    // setState(() {
+                    //   selectedOption = value;
+                    // });
+                  },
+                ),
+              ],
+            ),
+            SizedBox(height: 16.0),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 // Do something with the user's registration information
                 // String username = _usernameController.text;
                 // String phoneNumber = _phoneNumberController.text;
                 final form = registerForm(
                     username: _usernameController.text.trim(),
                     phonenumber: _phoneNumberController.text.trim(),
-                    dateofbirth: _selectedDate);
-                register(form);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Homepage()),
-                );
+                    dateofbirth: DateFormat('yyyy-MM-dd').format(_selectedDate),
+                    privilege: selectedOption);
+                dynamic user = await register(form);
+                if (widget.message == "login") {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Homepage(
+                              user: user,
+                            )),
+                  );
+                } else {
+                  Navigator.pop(context);
+                }
               },
               child: Text('Register'),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Already a member?',
-                  style: TextStyle(color: Colors.grey[700]),
-                ),
-                const SizedBox(width: 4),
-                // FloatingActionButton(
-                //   onPressed: onPressed,
-                //   tooltip: 'register',
-                // ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginPage()),
-                    );
-                  },
-                  child: Text(
-                    'Login',
-                    style: TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
-                  ),
-                )
-                // const Text(
-                //   'Register now',
-                //   style: TextStyle(
-                //     color: Colors.blue,
-                //     fontWeight: FontWeight.bold,
-                //   ),
-                // ),
-              ],
-            )
+            Visibility(
+                visible: hide,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Already a member?',
+                      style: TextStyle(color: Colors.grey[700]),
+                    ),
+                    const SizedBox(width: 4),
+                    // FloatingActionButton(
+                    //   onPressed: onPressed,
+                    //   tooltip: 'register',
+                    // ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                        );
+                      },
+                      child: Text(
+                        'Login',
+                        style:
+                            TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
+                      ),
+                    )
+                    // const Text(
+                    //   'Register now',
+                    //   style: TextStyle(
+                    //     color: Colors.blue,
+                    //     fontWeight: FontWeight.bold,
+                    //   ),
+                    // ),
+                  ],
+                ))
           ],
         ),
       ),

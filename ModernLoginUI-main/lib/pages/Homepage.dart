@@ -3,8 +3,25 @@ import 'package:modernlogintute/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import 'Registrationpage.dart';
+import 'bill.dart';
+import 'debit.dart';
+
+class userForm {
+  List user;
+  // String password;
+
+  userForm({required this.user});
+
+  Map<String, dynamic> toJson() => {
+        'user': user,
+      };
+}
+
 class Homepage extends StatefulWidget {
   @override
+  dynamic user;
+  Homepage({required this.user});
   _HomepageState createState() => _HomepageState();
 }
 
@@ -14,17 +31,23 @@ class _HomepageState extends State<Homepage> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
 
-  void signIn() {
-    //  var url = "http://127.0.0.1:8000/register/";
-    //  List response = json.decode((await client.get(url)).body);
-  }
+  Future<void> logout(user) async {
+    // List<Map<String, dynamic>> user = [];
+    // List user = [];
 
-  Future<void> logout() async {
+    print(user.runtimeType);
+    final form = userForm(
+      user: user,
+    );
     final url = Uri.parse(
         'http://127.0.0.1:8000/logout'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
-    // final body = json.encode(form.toJson());
-    final response = await http.post(url, headers: headers);
+    // for (dynamic item in user1) {
+    //   user.add(item.toJson());
+    // }
+    // print(user);
+    final body = json.encode(form.toJson());
+    final response = await http.post(url, headers: headers, body: body);
 
     if (response.statusCode == 200) {
       // Successful logout
@@ -53,8 +76,8 @@ class _HomepageState extends State<Homepage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     TextButton(
-                      onPressed: () {
-                        logout;
+                      onPressed: () async {
+                        await logout(widget.user);
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => LoginPage()),
@@ -68,7 +91,16 @@ class _HomepageState extends State<Homepage> {
                     ),
 
                     TextButton(
-                      onPressed: signIn,
+                      onPressed: () {
+                        if (widget.user[0]['privilege'] == "Main") {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    RegistrationPage(message: "family")),
+                          );
+                        }
+                      },
                       child: Text(
                         'family',
                         style:
@@ -77,7 +109,16 @@ class _HomepageState extends State<Homepage> {
                     ),
 
                     TextButton(
-                      onPressed: signIn,
+                      onPressed: () {
+                        if (widget.user[0]['privilege'] == "Main") {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return MyFormPopup(user: widget.user);
+                            },
+                          );
+                        }
+                      },
                       child: Text(
                         'pay_bills',
                         style:
@@ -86,7 +127,16 @@ class _HomepageState extends State<Homepage> {
                     ),
 
                     TextButton(
-                      onPressed: signIn,
+                      onPressed: () {
+                        if (widget.user[0]['privilege'] == "Main") {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return MydebitPopup(user: widget.user);
+                            },
+                          );
+                        }
+                      },
                       child: Text(
                         'add_debits',
                         style:
@@ -101,4 +151,6 @@ class _HomepageState extends State<Homepage> {
             ),
     );
   }
+
+  void debit() {}
 }

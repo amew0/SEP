@@ -1,10 +1,5 @@
-// import 'dart:convert';
-// import 'dart:html';
-
+// import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-// ignore: avoid_web_libraries_in_flutter
-// import 'dart:js';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
@@ -28,56 +23,64 @@ class LoginForm {
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
-  final String endpointUrl = 'http://127.0.0.1:8000/ccds';
-  final Map<String, String> headers = {
-    'Content-Type': 'application/json',
-    // 'Authorization': 'Bearer your_access_token_here',
-  };
-  Client client = http.Client() as Client;
+  LoginPage.ensureInitialized();
   // text editing controllers
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
 
-  // sign user in method
-  void signIn() {
-    //  var url = "http://127.0.0.1:8000/register/";
-    //  List response = json.decode((await client.get(url)).body);
-  }
-  Future<void> login(LoginForm form) async {
+  // Future<void> storeToken(String token) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   await prefs.setString('auth_token', token);
+  // }
+
+  // Future<String?> getToken() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   return prefs.getString('auth_token');
+  // }
+
+  Future<dynamic> login(LoginForm form) async {
     final url = Uri.parse(
         'http://127.0.0.1:8000/login_flutter'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
     final body = json.encode(form.toJson());
     final response = await http.post(url, headers: headers, body: body);
-
+    dynamic user;
     if (response.statusCode == 200) {
       // Successful login
-      print("successfully sent Login POST");
-      final token = json.decode(response.body)['token'];
+      print("successfully logged in");
+      // print(json.decode(response.body)[0]);
+      user = json.decode(response.body)[0];
+      // print(user.runtimeType);
+      print(user[1]);
+      // await storeToken(user[1]);
+      // print(json.decode(response.body)['token']);
+      // print(user.username);
       // Save the token to local storage or global state
     } else {
       // Failed login
       throw Exception('Failed to login');
     }
+    print(user);
+    return user;
   }
 
-  Future<void> signUp() async {
-    // Make the GET request
-    final response = await http.get(
-      Uri.parse(endpointUrl),
-      headers: headers,
-    );
+  // Future<void> signUp() async {
+  //   // Make the GET request
+  //   final response = await http.get(
+  //     Uri.parse(endpointUrl),
+  //     headers: headers,
+  //   );
 
-    // Check the response status code
-    if (response.statusCode == 200) {
-      // The request was successful, parse the response body
-      final List<dynamic> users = jsonDecode(response.body);
-      print('Users: $users');
-    } else {
-      // The request failed, handle the error
-      print('Request failed with status: ${response.statusCode}.');
-    }
-  }
+  //   // Check the response status code
+  //   if (response.statusCode == 200) {
+  //     // The request was successful, parse the response body
+  //     final List<dynamic> users = jsonDecode(response.body);
+  //     print('Users: $users');
+  //   } else {
+  //     // The request failed, handle the error
+  //     print('Request failed with status: ${response.statusCode}.');
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -148,14 +151,15 @@ class LoginPage extends StatelessWidget {
               // sign in button
               // MyButton(onTap: login()),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   final form = LoginForm(
                       username: usernameController.text.trim(),
                       password: passwordController.text.trim());
-                  login(form);
+                  dynamic user = await login(form);
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => Homepage()),
+                    MaterialPageRoute(
+                        builder: (context) => Homepage(user: user)),
                   );
                 },
                 child: Text('Login'),
@@ -182,10 +186,12 @@ class LoginPage extends StatelessWidget {
                   // ),
                   TextButton(
                     onPressed: () {
+                      String message = "login";
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => RegistrationPage()),
+                            builder: (context) =>
+                                RegistrationPage(message: message)),
                       );
                     },
                     child: Text(

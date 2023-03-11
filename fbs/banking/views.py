@@ -32,14 +32,29 @@ def index(request):
 PASSWORD = "a" # later will update to generate a new one
 EMAIL = "a@a.a"
 
+@csrf_exempt
 def register(request):
     if request.method == "POST":
-        user = register_user(request,"register")
-        
+        # user = register_user(request,"register")
+        print("its here")
+        # data = json.loads(request.body)
+        # # username = data.get('username')
+        # # phone_number = data.get('phoneNumber')
+        # print(request.body)
+        user = registration_view_flutter(request,"register")
+        user1=[]
         login(request, user)
-        return render(request, "banking/index.html")
+        user=user.serialize()
+        token = str(generate_tokens(user))
+        user1.append(user)
+        user1.append(token)
+        return JsonResponse([ user1], safe=False, status=200)
+
+        # return render(request, "banking/index.html")
     else:
-        return render(request, "banking/register.html")
+        return JsonResponse({'error': 'Invalid credentials'}, safe=False, status=400)
+
+        # return render(request, "banking/register.html")
 
 def register_user(request,called_from):
     username = request.POST["username"]
@@ -47,7 +62,7 @@ def register_user(request,called_from):
     phone_number = request.POST["phoneNumber"]
     dateOfBirth = request.POST["dateOfBirth"]
     privilege = request.POST.get("privilege")
-    
+
     if called_from == "register":
         account = CreditCardDetail.objects.get(phoneNumber=phone_number)
     elif called_from == "family":
@@ -107,13 +122,23 @@ def login_view(request):
 	else:
 		return render(request, "banking/login.html")
 
+@csrf_exempt
+
 def logout_view(request):
+    
 	logout(request)
-	return HttpResponseRedirect(reverse("index"))
+   
+    
+    # return JsonResponse({'message': 'successfully logged out'}, status=200)
+
+	return JsonResponse({'message':'successfully logged out'},status=200)
+	# return HttpResponseRedirect(reverse("index"))
 
 def family_member(request):
     if request.method == "POST":
-        user = register_user(request,"family")
+        # user = register_user(request,"family")
+        user = registration_view_flutter(request,"family")
+
         return HttpResponseRedirect(reverse("family"))
     else:
         loggedInUser = User.objects.get(pk = request.user.id)
@@ -122,39 +147,90 @@ def family_member(request):
             "Privilege": loggedInUser.privilege
         })
 
+@csrf_exempt
 def pay_bills(request):
     if request.method == "POST":
-        billAmount = request.POST["bill_amount"]
-        billType = request.POST["bill_name"]
-        billDescription = request.POST["bill_description"]
+        data = json.loads(request.body)
+        print("its here")
+        billAmount = data.get("bill_amount")
+        billType = data.get("bill_name")
+        billDescription = data.get("bill_description")
+        billMonthly = data.get("bill_scheduled_monthly")
+        date = data.get("date")
+        user = data.get("user")
+        account = CreditCardDetail.objects.get(phoneNumber=user[0]['Phone'])
+        print(user)
+        # billAmount = request.POST["bill_amount"]
+        # billType = request.POST["bill_name"]
+        # billDescription = request.POST["bill_description"]
         
         # This should be implemented later
-        billMonthly = request.POST.get("bill_scheduled_monthly")
+        # billMonthly = request.POST.get("bill_scheduled_monthly")
         # print(billScheduled) billScheduled is "Yes" from the value I set.
-        billMonthly = True if request.POST.get("bill_scheduled_monthly") else False
+        # billMonthly = True if request.POST.get("bill_scheduled_monthly") else False
+        billMonthly = True if data.get("bill_scheduled_monthly") else False
 
+        
         bill = Bill.objects.create(
-            accountNumBill=request.user.account,
+            accountNumBill=account,
+            # accountNumBill=request.user.account,
             billType=billType,
             billDescription=billDescription,
             billAmount=billAmount,
-            billMonthly=billMonthly
+            billMonthly=billMonthly,
+            date=date
         )
         bill.save()
-        return HttpResponseRedirect(reverse("index"))
+        print(billAmount)
+        return JsonResponse({'message': 'bill added successfully'}, safe=False, status=200)
+        # return HttpResponseRedirect(reverse("index"))
 
     else:
-        return render(request, "banking/pay_bills.html",{
-            "bills":BILLS,
-            "max_amount": request.user.linked_accounts.all()[0].balance
-        })
+        return JsonResponse({"bills":BILLS,
+        "max_amount": CreditCardDetail.objects.get(phoneNumber=json.loads(request.body).get("user")[0]['Phone']).balance}, safe=False, status=400)
 
+        # return render(request, "banking/pay_bills.html",{
+        # "bills":BILLS,
+        # "max_amount": request.user.linked_accounts.all()[0].balance
+        # })
+
+@csrf_exempt
 def add_debits(request):
     if request.method == "POST":
-        pass
-    else:
-        return render(request, "banking/add_debits.html")
+        data = json.loads(request.body)
+        print("its here")
+        DebitAmount = data.get("debit_amount")
+        DebitName = data.get("debit_name")
+        DebitInstallmentMonthly = data.get("debit_installment")
+        DebitFinalDate = data.get("debit_final_date")
+        user = data.get("user")
+        account = CreditCardDetail.objects.get(phoneNumber=user[0]['Phone'])
+        print(user)
+        # billAmount = request.POST["bill_amount"]
+        # billType = request.POST["bill_name"]
+        # billDescription = request.POST["bill_description"]
+        
+        # This should be implemented later
+        # billMonthly = request.POST.get("bill_scheduled_monthly")
+        # print(billScheduled) billScheduled is "Yes" from the value I set.
+        # billMonthly = True if request.POST.get("bill_scheduled_monthly") else False
+        billMonthly = True if data.get("bill_scheduled_monthly") else False
 
+        
+        debit = Debit.objects.create(
+            accountNumDebit=account,
+            DebitName=DebitName,
+            DebitFinalDate=DebitFinalDate,
+            DebitAmount=DebitAmount,
+            DebitInstallmentMonthly=DebitInstallmentMonthly
+            
+        )
+        debit.save()
+        print(DebitAmount)
+        return JsonResponse({'message': 'debit added successfully'}, safe=False, status=200)
+
+    else:
+        return JsonResponse({'error': 'couldn not process your request'}, safe=False, status=400)
 
 # API
 # @login_required
@@ -162,19 +238,78 @@ def credit_card_details(request):
     ccds = CreditCardDetail.objects.all()
     if request.method == "GET":
         return JsonResponse([ccd.serialize() for ccd in ccds], safe=False)
+
 @csrf_exempt
 def login_view_flutter(request):
     if request.method == 'POST':
         data = json.loads(request.body)
+        print(data)
         username = data.get('username')
         password = data.get('password')
-        print(username)
-        print(password)
+        # print(username)
+        # print(password)
         user = authenticate(request, username=username, password=password)
+        
+        user1=[]
         if user is not None:
             login(request, user)
+            user=user.serialize()
             token = str(generate_tokens(user))
+            user1.append(user)
+            user1.append(token)
             # return JsonResponse({'message': 'success'} , status=200)
-            return JsonResponse({'token': token}, status=200)
+            # return JsonResponse({'token': token}, status=200) #,{'token': token} ,[ user.serialize()]
+            return JsonResponse([ user1], safe=False, status=200)
+
         else:
             return JsonResponse({'error': 'Invalid credentials'}, status=400)
+
+@csrf_exempt
+def registration_view_flutter(request,called_from):
+    # if request.method == 'POST':
+        data = json.loads(request.body)
+        print("called view")
+        # print(request.body)
+        username = data.get('username')
+        phone_number = data.get('phonenumber')
+        dateOfBirth = data.get('dateofbirth')
+        # privilege = "Main"
+        privilege = data.get('privilege')
+        print(phone_number)
+        if called_from == "register":
+            account = CreditCardDetail.objects.get(phoneNumber=phone_number)
+    
+        elif called_from == "family":
+            print(request.user.account.phoneNumber)
+            account = CreditCardDetail.objects.get(phoneNumber = request.user.account.phoneNumber)
+        else:
+            pass
+
+        try:
+            # Attempt to create new user
+            user = User.objects.create_user(
+                username, 
+                EMAIL, 
+                PASSWORD,
+                account = account,
+                dateOfBirth = dateOfBirth,
+                privilege = privilege
+                )
+            user.save()
+        except IntegrityError:
+            """
+            Handle possible error here, like:
+                Username already taken
+            """    
+            # return render(request, "hotel/register.html", {
+            #     "message": "Username already taken."
+            # }) 
+        return user
+
+
+        # if user is not None:
+        #     login(request, user)
+        #     token = str(generate_tokens(user))
+        #     return JsonResponse({'token': token}, status=500)
+        # else:
+        #     return JsonResponse({'error': 'Invalid credentials'}, status=400)
