@@ -10,7 +10,16 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
+
+# celery for scheduled tasks
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -45,7 +54,22 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'celery',
+    'django_apscheduler',
 ]
+
+# Celery settings
+CELERY_BEAT_SCHEDULE = {
+    'update-book-title-every-hour': {
+        'task': 'banking.tasks.update_book_title',
+        'schedule': timedelta(hours=1),
+    },
+}
+
+# Celery tasks
+CELERY_IMPORTS = (
+    'banking.tasks',
+)
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

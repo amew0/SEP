@@ -1,9 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
+// import 'package:sms/sms.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:date_field/date_field.dart';
 import 'package:modernlogintute/pages/Homepage.dart';
 import 'package:modernlogintute/pages/login_page.dart';
@@ -59,6 +58,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
   // Future<String?> getToken() async {
   //   final prefs = await SharedPreferences.getInstance();
   //   return prefs.getString('auth_token');
+  // }
+
+  // void sendSMS(String message, String recipient) {
+  //   SmsSender sender = new SmsSender();
+  //   sender.sendSms(new SmsMessage(
+  //     recipient,
+  //     message,
+  //   ));
   // }
 
   Future<dynamic> register(registerForm form) async {

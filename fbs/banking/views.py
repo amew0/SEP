@@ -17,6 +17,8 @@ from django.views.decorators.csrf import csrf_exempt
 # from rest_framework_simplejwt.tokens import RefreshToken
 import secrets
 
+from banking import scheduler
+
 # Imported from current project
 from .models import *
 
@@ -105,8 +107,8 @@ def register_user(request,called_from):
 
 def login_view(request):
 	if request.method == "POST":
-
-		# Attempt to sign user in
+        
+		# scheduler.start() #Attempt to sign user in
 		username = request.POST["username"]
 		password = request.POST["password"]
 		user = authenticate(request, username=username, password=password)
@@ -242,6 +244,7 @@ def credit_card_details(request):
 @csrf_exempt
 def login_view_flutter(request):
     if request.method == 'POST':
+        # scheduler.start()
         data = json.loads(request.body)
         print(data)
         username = data.get('username')
