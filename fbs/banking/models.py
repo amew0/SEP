@@ -128,6 +128,12 @@ class Bill (models.Model):
         on_delete = models.SET_NULL, 
         null=True, 
         related_name = "accountNumBill")
+    billUser = models.ForeignKey(
+        User,
+        on_delete = models.SET_NULL, 
+        null=True, 
+        related_name = "billUser"
+    )
     billType = models.CharField(
         max_length = 25,
         choices=BILLS)

@@ -316,3 +316,14 @@ def registration_view_flutter(request,called_from):
         #     return JsonResponse({'token': token}, status=500)
         # else:
         #     return JsonResponse({'error': 'Invalid credentials'}, status=400)
+
+def statement(request):
+    if request.user.privilege == "Main":
+        bills = Bill.objects.filter(accountNumBill=request.user.account)
+    else:
+        bills = Bill.objects.filter(billUser=request.user)
+
+    return bills
+
+def bday_voucher(request):
+    pass

@@ -92,7 +92,7 @@ class _HomepageState extends State<Homepage> {
 
                     TextButton(
                       onPressed: () {
-                        if (widget.user[0]['privilege'] == "Main") {
+                        if (widget.user[0]['Privilege'] == "Main") {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -110,7 +110,7 @@ class _HomepageState extends State<Homepage> {
 
                     TextButton(
                       onPressed: () {
-                        if (widget.user[0]['privilege'] == "Main") {
+                        if (widget.user[0]['Privilege'] == "Main") {
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
@@ -128,7 +128,9 @@ class _HomepageState extends State<Homepage> {
 
                     TextButton(
                       onPressed: () {
-                        if (widget.user[0]['privilege'] == "Main") {
+                        print(widget.user[0]['Privilege']);
+                        if (widget.user[0]['Privilege'] == "Main") {
+                          print("Ensh");
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
