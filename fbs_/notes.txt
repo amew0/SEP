@@ -3,6 +3,6 @@ Issue 1: When signing up a generated-password should be given to the user (throu
 Issue 2: Scheduling
     For 4) Pay Bills, to account for "request monthly automatic payment of the selected bill":
         - Not sure how to approach it. coz this should be scheduled and not initated by anything.
-    Same goes for scheduled transfer to "sub"
+    Same goes for scheduled transfer to "sub
     
 
