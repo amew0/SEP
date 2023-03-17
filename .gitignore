@@ -1,3 +1,12 @@
 ModernLoginUI-main/.vscode/
 ModernLoginUI-main/android/
+ModernLoginUI-main/ios/
+ModernLoginUI-main/linux/
+ModernLoginUI-main/macos/
+ModernLoginUI-main/test/
+ModernLoginUI-main/web/
+ModernLoginUI-main/windows/
+ModernLoginUI-main/.metadata
+ModernLoginUI-main/analysis_options.yaml
+ModernLoginUI-main/pubspec.lock
 fbs_/
