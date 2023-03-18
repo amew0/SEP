@@ -130,7 +130,7 @@ class LoginPage extends StatelessWidget {
 
               // forgot password?
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 400.0),
+                padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [

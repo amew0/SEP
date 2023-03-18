@@ -18,6 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 import secrets
 
 from banking import scheduler
+from banking.reminder import schedule_reminder
 
 # Imported from current project
 from .models import *
@@ -208,14 +209,7 @@ def add_debits(request):
         user = data.get("user")
         account = CreditCardDetail.objects.get(phoneNumber=user[0]['Phone'])
         print(user)
-        # billAmount = request.POST["bill_amount"]
-        # billType = request.POST["bill_name"]
-        # billDescription = request.POST["bill_description"]
-        
-        # This should be implemented later
-        # billMonthly = request.POST.get("bill_scheduled_monthly")
-        # print(billScheduled) billScheduled is "Yes" from the value I set.
-        # billMonthly = True if request.POST.get("bill_scheduled_monthly") else False
+       
         billMonthly = True if data.get("bill_scheduled_monthly") else False
 
         
@@ -228,6 +222,8 @@ def add_debits(request):
             
         )
         debit.save()
+        schedule_reminder(user_id=user[0]['UserId'], reminder_text="Take out the trash", schedule="0 23 * * *")
+
         print(DebitAmount)
         return JsonResponse({'message': 'debit added successfully'}, safe=False, status=200)
 
@@ -257,6 +253,7 @@ def login_view_flutter(request):
         if user is not None:
             login(request, user)
             user=user.serialize()
+            print(user["Privilege"])
             token = str(generate_tokens(user))
             user1.append(user)
             user1.append(token)

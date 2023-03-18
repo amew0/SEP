@@ -58,8 +58,8 @@ class User (AbstractUser):
             "Privilege" : self.privilege,
             "Balance"  : self.account.balance,
             "Account"  : self.account.accountNumber,
-            "Phone"  : self.account.phoneNumber
-            # "Linked"  : self.account.linked_users
+            "Phone"  : self.account.phoneNumber,
+            "Linked"  : str(self.account.linked_users)
 
         }
     def create_user(self, username, email=None, password=None, **extra_fields):
