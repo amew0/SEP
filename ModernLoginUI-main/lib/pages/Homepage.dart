@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:modernlogintute/pages/allowance.dart';
 import 'package:modernlogintute/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -84,7 +85,7 @@ class _HomepageState extends State<Homepage> {
                         );
                       },
                       child: Text(
-                        'logout',
+                        'Logout',
                         style:
                             TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
                       ),
@@ -102,7 +103,7 @@ class _HomepageState extends State<Homepage> {
                         }
                       },
                       child: Text(
-                        'family',
+                        'Family Member',
                         style:
                             TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
                       ),
@@ -120,7 +121,7 @@ class _HomepageState extends State<Homepage> {
                         }
                       },
                       child: Text(
-                        'pay_bills',
+                        'Pay Bills',
                         style:
                             TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
                       ),
@@ -130,7 +131,6 @@ class _HomepageState extends State<Homepage> {
                       onPressed: () {
                         print(widget.user[0]['Privilege']);
                         if (widget.user[0]['Privilege'] == "Main") {
-                          print("Ensh");
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
@@ -140,7 +140,24 @@ class _HomepageState extends State<Homepage> {
                         }
                       },
                       child: Text(
-                        'add_debits',
+                        'Add Debits',
+                        style:
+                            TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        if (widget.user[0]['Privilege'] == "Main") {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return MyallowancePopup(user: widget.user);
+                            },
+                          );
+                        }
+                      },
+                      child: Text(
+                        'Add allowance',
                         style:
                             TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
                       ),

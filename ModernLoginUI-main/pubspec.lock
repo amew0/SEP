@@ -168,14 +168,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
-  sms:
-    dependency: "direct main"
-    description:
-      name: sms
-      sha256: "2cb0c0591f970d2705e276b64cef716f64403b4126a1bc9d5f18fd5ba91bd6d6"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.4"
   source_span:
     dependency: transitive
     description:
