@@ -16,7 +16,5 @@ def main():
             "forget to activate a virtual environment?"
         ) from exc
     execute_from_command_line(sys.argv)
-print("this sould show in the new branch")
 if __name__ == "__main__":
     main()
-print("from new branch")
