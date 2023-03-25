@@ -13,6 +13,12 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from datetime import timedelta
 from pathlib import Path
 
+
+#onesignal
+
+# ONESIGNAL_APP_ID = '<your-onesignal-app-id>'
+# ONESIGNAL_API_KEY = '<your-onesignal-api-key>'
+
 # celery for scheduled tasks
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'

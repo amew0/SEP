@@ -95,8 +95,8 @@ class Allowance (models.Model):
         decimal_places = 2,
         default=0.0)
     
-    def __str__(self):
-        return f"{self.userSub: (AED {self.allowance})}"
+    # def __str__(self):
+    #     return f"{self.userSub: (AED {self.allowance})}"
 
 BILLS = (
     ('rent', 'Rent or mortgage payment'),
@@ -183,3 +183,13 @@ class Debit (models.Model):
     
     def __str__(self):
         return f"{self.DebitName} (AED{self.DebitAmount})"
+
+class statement (models.Model):
+    userId=models.IntegerField(
+        
+    )
+    statements=models.TextField(
+        blank=True
+    )
+    def __str__(self):
+        return f"{self.userId}"

@@ -3,6 +3,9 @@ import 'package:modernlogintute/pages/allowance.dart';
 import 'package:modernlogintute/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:modernlogintute/pages/statement.dart';
+import 'package:flutter_nfc_kit/flutter_nfc_kit.dart';
+import 'package:flutter_nfc/flutter_nfc.dart';
 
 import 'Registrationpage.dart';
 import 'bill.dart';
@@ -31,6 +34,49 @@ class _HomepageState extends State<Homepage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
+  late List<dynamic> itemList = [];
+
+  // NfcSession session = await FlutterNfcKit.startSession();
+  // session.onDiscovered.listen((NfcTag tag) {
+  // // Handle the discovered tag
+  // String text = await tag.readText();
+  // print(text);
+  // });
+  // await session.stop();
+//   void startNFCSession() async {
+//   FlutterNfc().startSession(onDiscovered: (NfcTag tag) {
+//     // Handle tag data here
+//     print(tag);
+//   });
+// }
+
+  Future<dynamic> statement(user) async {
+    // List<Map<String, dynamic>> user = [];
+    // List user = [];
+
+    final form = userForm(
+      user: user,
+    );
+    final url = Uri.parse(
+        'http://127.0.0.1:8000/statement'); // insert correct API endpoint
+    final headers = {'Content-Type': 'application/json'};
+
+    final body = json.encode(form.toJson());
+    final response = await http.post(url, headers: headers, body: body);
+    dynamic statement;
+    if (response.statusCode == 200) {
+      // Successful logout
+      statement = json.decode(response.body);
+      print(statement);
+      print("successfully sent Get Statement POST");
+      // final token = json.decode(response.body)['token'];
+      // Save the token to local storage or global state
+    } else {
+      // Failed login
+      throw Exception('Failed to send');
+    }
+    return statement;
+  }
 
   Future<void> logout(user) async {
     // List<Map<String, dynamic>> user = [];
@@ -161,8 +207,36 @@ class _HomepageState extends State<Homepage> {
                         style:
                             TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
                       ),
-                    )
+                    ),
 
+                    TextButton(
+                      onPressed: () async {
+                        List<dynamic> stat = await statement(widget.user);
+                        itemList.add(stat);
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return StatementPopup(
+                                user: widget.user, itemList: itemList);
+                          },
+                        );
+                      },
+                      child: Text(
+                        'get statement',
+                        style:
+                            TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        //NFC 监听
+                        FlutterNfc.onTagDiscovered().listen((value) {
+                          print("监听id: ${value.id}");
+                          print("监听content: ${value.content}");
+                        });
+                      },
+                      child: Text("NFC-监听"),
+                    ),
                     // SizedBox(height: 16.0),
                   ],
                 ),

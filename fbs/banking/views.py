@@ -184,6 +184,12 @@ def pay_bills(request):
             date=date
         )
         bill.save()
+        stat=str(billType+", "+billDescription+", "+billAmount+". ")
+        Statement=statement.objects.create(
+            userId=int(user[0]['UserId']),
+            statements=stat
+        )
+        Statement.save()
         print(billAmount)
         return JsonResponse({'message': 'bill added successfully'}, safe=False, status=200)
         # return HttpResponseRedirect(reverse("index"))
@@ -222,7 +228,10 @@ def add_debits(request):
             
         )
         debit.save()
-        schedule_reminder(user_id=user[0]['UserId'], reminder_text="Take out the trash", schedule="0 23 * * *")
+        stat=DebitName+", "+DebitAmount+". "
+        Statement=statement.objects.create(userId=user[0]['UserId'],statements=stat)
+        Statement.save()
+        schedule_reminder(user_id=user[0]['UserId'], reminder_text="Take out the trash")
 
         print(DebitAmount)
         return JsonResponse({'message': 'debit added successfully'}, safe=False, status=200)
@@ -313,14 +322,22 @@ def registration_view_flutter(request,called_from):
         #     return JsonResponse({'token': token}, status=500)
         # else:
         #     return JsonResponse({'error': 'Invalid credentials'}, status=400)
+@csrf_exempt
+def get_statement(request):
 
-def statement(request):
-    if request.user.privilege == "Main":
-        bills = Bill.objects.filter(accountNumBill=request.user.account)
+    data = json.loads(request.body)
+    user=data.get('user')
+    if user[0]['Privilege'] == "Main":
+        stats = statement.objects.filter(userId=user[0]['UserId']).values()
+        # queryset = statement.objects.filter(userId=user[0]['UserId']).values()
+        result_str = json.dumps(list(stats))
+        print(stats)
+        print(result_str)
+        return JsonResponse([result_str], safe=False, status=200)
+
     else:
         bills = Bill.objects.filter(billUser=request.user)
 
-    return bills
-
+    return JsonResponse({'error': 'Invalid credentials'}, status=400)
 def bday_voucher(request):
     pass

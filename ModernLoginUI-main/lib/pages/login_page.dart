@@ -1,6 +1,7 @@
 // import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_nfc/flutter_nfc.dart';
 import 'package:http/http.dart' as http;
 import 'package:modernlogintute/components/my_textfield.dart';
 import 'package:modernlogintute/pages/Homepage.dart';
@@ -36,6 +37,7 @@ class LoginPage extends StatelessWidget {
   // }
 
   Future<dynamic> login(LoginForm form) async {
+    // https://fbsbanking.herokuapp.com/
     final url = Uri.parse(
         'http://127.0.0.1:8000/login_flutter'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
@@ -167,6 +169,22 @@ class LoginPage extends StatelessWidget {
 
               const SizedBox(height: 50),
 
+              ElevatedButton(
+                onPressed: () {
+                  // NFC 监听
+                  FlutterNfc.onTagDiscovered().listen((value) {
+                    print("id: ${value.id}");
+                    print("content: ${value.content}");
+                  });
+                },
+                child: Text("NFC"),
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                      Color.fromARGB(255, 7, 7, 7)),
+                ),
+              ),
+
+              const SizedBox(height: 50),
               // not a member? register now
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

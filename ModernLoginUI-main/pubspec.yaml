@@ -41,6 +41,8 @@ dependencies:
   intl: ^0.17.0
   date_field: ^3.0.0
   flutter_datetime_picker: ^1.5.1
+  flutter_nfc_kit: ^3.3.1
+  flutter_nfc: ^1.0.0
   # sms: ^0.2.4
   # shared_preferences: ^2.0.18
 dev_dependencies:
