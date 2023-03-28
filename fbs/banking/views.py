@@ -342,10 +342,39 @@ def get_statement(request):
 def bday_voucher(request):
     pass
 
+@csrf_exempt
 def allowance_api(request):
-    mainSsubs = Allowance.objects.filter(userMain = request.user).values()
-    print(mainSsubs)
-    return JsonResponse(
-        list(mainSsubs),
-        safe=False, 
-        status=200)
+    if request.method == "POST":
+        data = json.loads(request.body)
+
+        userMain = data.get('userMain') # id
+        userSub = data.get('userSub') # username
+        amount = data.get('amount') # username
+        date = data.get('date') # yy-mm-dd-hh-mm-ss
+        # 2023-03-28-07-25-17
+        print(userMain)
+        print(userSub)
+        print(amount)
+        print(date)
+
+        # # Create Allowance object
+        # allowance = Allowance.objects.create(
+        #     userMain = User.objects.get(pk=userMain),
+        #     userSub = User.objects.get(username=userSub),
+        #     amount = amount
+        #     # date = data.get('date') # yy-mm-dd-hh-mm-ss
+        # )
+
+
+
+
+
+        return JsonResponse({"message": "Success"}, safe=False, status=200)
+    else:
+
+        mainSsubs = Allowance.objects.filter(userMain = request.user).values()
+        print(mainSsubs)
+        return JsonResponse(
+            list(mainSsubs),
+            safe=False, 
+            status=200)

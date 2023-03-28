@@ -7,7 +7,7 @@ import 'package:date_field/date_field.dart';
 
 class AllowanceForm {
   String userMain;
-  String userSub;
+  String? userSub;
   String amount;
   bool instant;
   dynamic user;
@@ -43,7 +43,7 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
   // String? allowance_name = '';
   // String? allowance_amount = '';
   TextEditingController userMain = TextEditingController();
-  TextEditingController userSub = TextEditingController();
+  String? userSub = "";
   TextEditingController amount = TextEditingController();
   TextEditingController instant = TextEditingController();
 
@@ -55,7 +55,7 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
 
   Future<void> Allowance(AllowanceForm form) async {
     final url = Uri.parse(
-        'http://127.0.0.1:8000/allowances_api'); // insert correct API endpoint
+        'http://127.0.0.1:8000/allowance_api'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
     final body = json.encode(form.toJson());
     final response = await http.post(url, headers: headers, body: body);
@@ -63,8 +63,6 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
     if (response.statusCode == 200) {
       // Successful login
       print("successfully added allowance");
-      print(body);
-      print(response);
 
       final user = json.decode(response.body)[0];
       // Save the token to local storage or global state
@@ -77,9 +75,6 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
 
   @override
   Widget build(BuildContext context) {
-    // var subs= widget.user[0]["Linked"];
-    dynamic subs = ["son", "daughter", "wife"];
-
     var choice;
     var dropdownValue;
 
@@ -88,21 +83,21 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
     for (dynamic innerList in widget.user[0]["mainSsubs"]) {
       subsOnly.add(innerList[0]);
     }
-
+    print(widget.user[0]);
     return AlertDialog(
-      title: Text('allowance form'),
+      title: const Text('Allowance Form'),
       content: Form(
         key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            // DropdownButtonFormField(items: subs, onChanged: choice),
             DropdownButtonFormField<String>(
-              decoration: InputDecoration(labelText: "Select User"),
+              decoration: const InputDecoration(labelText: "Select User"),
               value: dropdownValue,
               onChanged: (String? newValue) {
                 setState(() {
                   dropdownValue = newValue;
+                  userSub = newValue;
                 });
               },
               items: subsOnly.map<DropdownMenuItem<String>>((String value) {
@@ -112,10 +107,9 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
                 );
               }).toList(),
             ),
-
             TextFormField(
               controller: amount,
-              decoration: InputDecoration(labelText: 'amount'),
+              decoration: const InputDecoration(labelText: 'Amount'),
               validator: (value) {
                 if (value!.isEmpty) {
                   return 'Please enter allowance amount';
@@ -136,7 +130,7 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
                 },
               ),
               Text(
-                'make an instant transfer',
+                'Make an instant transfer',
                 style: TextStyle(color: Colors.grey[700], fontSize: 10),
               ),
             ]),
@@ -158,20 +152,21 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
               _formKey.currentState!.save();
               date = DateTime.now();
               form = AllowanceForm(
-                  userMain: userMain.text.trim(),
-                  userSub: userSub.text.trim(),
+                  userMain: widget.user[0]["UserId"].toString(),
+                  userSub: userSub,
                   amount: amount.text.trim(),
                   instant: _isChecked,
                   user: widget.user,
-                  date: DateFormat('yyyy-MM-dd').format(DateTime.now()));
+                  date:
+                      DateFormat('yyyy-MM-dd-hh-mm-ss').format(DateTime.now()));
               // date: DateFormat('yyyy-MM-dd').format(date));
 
-              // await allowance(form);
+              await Allowance(form);
               // Do something with the form data, e.g. submit to server
               Navigator.pop(context);
             }
           },
-          child: Text('Submit'),
+          child: const Text('Submit'),
         ),
       ],
     );

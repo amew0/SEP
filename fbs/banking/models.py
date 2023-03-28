@@ -97,6 +97,8 @@ class Allowance (models.Model):
         decimal_places = 2,
         default=0.0)
     
+    dateTime = models.DateTimeField(null=True)
+    
     def __str__(self):
         return f"{self.userMain} {self.userSub}: (AED {self.allowance})"
 
