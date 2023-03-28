@@ -10,3 +10,6 @@ ModernLoginUI-main/.metadata
 ModernLoginUI-main/analysis_options.yaml
 ModernLoginUI-main/pubspec.lock
 fbs_/
+
+*.pyc
+*.cmake

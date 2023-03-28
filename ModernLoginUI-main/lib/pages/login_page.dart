@@ -39,7 +39,7 @@ class LoginPage extends StatelessWidget {
   Future<dynamic> login(LoginForm form) async {
     // https://fbsbanking.herokuapp.com/
     final url = Uri.parse(
-        'https://fbsbanking.herokuapp.com/login_flutter'); // insert correct API endpoint
+        'http://127.0.0.1:8000/login_flutter'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
     final body = json.encode(form.toJson());
     final response = await http.post(url, headers: headers, body: body);
