@@ -50,6 +50,7 @@ class User (AbstractUser):
     def __str__(self):
         return f"{self.username} ({self.privilege})"
     def serialize(self):
+        mainSsubs = Allowance.objects.filter(userMain = self)
         return {
             "UserId" : self.id,
             "AccountId" : self.account.id,
@@ -59,7 +60,8 @@ class User (AbstractUser):
             "Balance"  : self.account.balance,
             "Account"  : self.account.accountNumber,
             "Phone"  : self.account.phoneNumber,
-            "Linked"  : str(self.account.linked_users)
+            "Linked"  : str(self.account.linked_users),
+            "mainSsubs" : [(s.userSub.username, s.allowance) for s in mainSsubs]
 
         }
     def create_user(self, username, email=None, password=None, **extra_fields):

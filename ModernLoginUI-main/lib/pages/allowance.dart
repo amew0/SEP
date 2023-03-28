@@ -55,7 +55,7 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
 
   Future<void> Allowance(AllowanceForm form) async {
     final url = Uri.parse(
-        'http://127.0.0.1:8000/pay_allowances'); // insert correct API endpoint
+        'http://127.0.0.1:8000/allowances_api'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
     final body = json.encode(form.toJson());
     final response = await http.post(url, headers: headers, body: body);
@@ -63,6 +63,9 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
     if (response.statusCode == 200) {
       // Successful login
       print("successfully added allowance");
+      print(body);
+      print(response);
+
       final user = json.decode(response.body)[0];
       // Save the token to local storage or global state
     } else {
@@ -79,6 +82,13 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
 
     var choice;
     var dropdownValue;
+
+    List<String> subsOnly = [];
+    // Retrieving Sub Users
+    for (dynamic innerList in widget.user[0]["mainSsubs"]) {
+      subsOnly.add(innerList[0]);
+    }
+
     return AlertDialog(
       title: Text('allowance form'),
       content: Form(
@@ -88,15 +98,14 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
           children: <Widget>[
             // DropdownButtonFormField(items: subs, onChanged: choice),
             DropdownButtonFormField<String>(
-              decoration: InputDecoration(labelText: "userSub"),
+              decoration: InputDecoration(labelText: "Select User"),
               value: dropdownValue,
               onChanged: (String? newValue) {
                 setState(() {
                   dropdownValue = newValue;
                 });
               },
-              items: <String>['Option 1', 'Option 2', 'Option 3', 'Option 4']
-                  .map<DropdownMenuItem<String>>((String value) {
+              items: subsOnly.map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Text(value),
