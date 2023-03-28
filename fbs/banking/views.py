@@ -343,8 +343,9 @@ def bday_voucher(request):
     pass
 
 def allowance_api(request):
-    mainSsubs = Allowance.objects.filter(userMain = request.user)
+    mainSsubs = Allowance.objects.filter(userMain = request.user).values()
+    print(mainSsubs)
     return JsonResponse(
-        [sub.serialize() for sub in mainSsubs]
-        , safe=False, 
+        list(mainSsubs),
+        safe=False, 
         status=200)
