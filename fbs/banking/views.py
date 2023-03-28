@@ -341,3 +341,10 @@ def get_statement(request):
     return JsonResponse({'error': 'Invalid credentials'}, status=400)
 def bday_voucher(request):
     pass
+
+def allowance_api(request):
+    mainSsubs = Allowance.objects.filter(userMain = request.user)
+    return JsonResponse(
+        [sub.serialize() for sub in mainSsubs]
+        , safe=False, 
+        status=200)

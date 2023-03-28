@@ -12,7 +12,7 @@ urlpatterns = [
     path("family", views.family_member, name="family"),
     path("pay_bills",views.pay_bills, name="pay_bills"),
     path("add_debits",views.add_debits,name="add_debits"),
-
+    path("allowance_api",views.allowance_api,name="allowance_api"),
     # path("<str:etc>", views.errorPage, name="errorPage"),
 
 

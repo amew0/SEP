@@ -98,6 +98,13 @@ class Allowance (models.Model):
     # def __str__(self):
     #     return f"{self.userSub: (AED {self.allowance})}"
 
+    def serialize(self):
+        return {
+            "MainUser" : self.userMain,
+            "SubUser" : self.userSub,
+            "Allowance" : self.allowance 
+        }
+
 BILLS = (
     ('rent', 'Rent or mortgage payment'),
     ('electricity', 'Electricity bill'),
