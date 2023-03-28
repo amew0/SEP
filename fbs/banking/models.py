@@ -95,8 +95,8 @@ class Allowance (models.Model):
         decimal_places = 2,
         default=0.0)
     
-    # def __str__(self):
-    #     return f"{self.userSub: (AED {self.allowance})}"
+    def __str__(self):
+        return f"{self.userMain} {self.userSub}: (AED {self.allowance})"
 
     def serialize(self):
         return {
