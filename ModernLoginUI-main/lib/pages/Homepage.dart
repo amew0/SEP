@@ -4,9 +4,10 @@ import 'package:modernlogintute/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:modernlogintute/pages/statement.dart';
-import 'package:flutter_nfc_kit/flutter_nfc_kit.dart';
-import 'package:flutter_nfc/flutter_nfc.dart';
-
+// import 'package:flutter_nfc_kit/flutter_nfc_kit.dart';
+// import 'package:flutter_nfc/flutter_nfc.dart';
+// ignore: import_of_legacy_library_into_null_safe
+import 'package:nfc_manager/nfc_manager.dart';
 import 'Registrationpage.dart';
 import 'bill.dart';
 import 'debit.dart';
@@ -227,15 +228,30 @@ class _HomepageState extends State<Homepage> {
                             TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
                       ),
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        //NFC 监听
-                        FlutterNfc.onTagDiscovered().listen((value) {
-                          print("监听id: ${value.id}");
-                          print("监听content: ${value.content}");
-                        });
+                    TextButton(
+                      onPressed: () async {
+                        // Check availability
+                        bool isAvailable =
+                            await NfcManager.instance.isAvailable() ?? false;
+                        print("in");
+                        print(isAvailable);
+                        // Start Session
+                        NfcManager.instance.startSession(
+                          // print("hey")
+                          onDiscovered: (NfcTag? tag) async {
+                            // await
+                            if (tag != null) {
+                              print("not null");
+                            } else
+                              print("found");
+                            // Do something with an NfcTag instance.
+                          },
+                        );
+                        // Stop Session
+                        NfcManager.instance.stopSession();
+                        print("out");
                       },
-                      child: Text("NFC-监听"),
+                      child: Text("NFC"),
                     ),
                     // SizedBox(height: 16.0),
                   ],
