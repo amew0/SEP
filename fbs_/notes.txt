@@ -1,8 +1,0 @@
-Issue 1: When signing up a generated-password should be given to the user (through SMS).
-    - For now, the generated-password will be just assigned to the user (and assume that the user has being notified of his password)
-Issue 2: Scheduling
-    For 4) Pay Bills, to account for "request monthly automatic payment of the selected bill":
-        - Not sure how to approach it. coz this should be scheduled and not initated by anything.
-    Same goes for scheduled transfer to "sub
-    
-
