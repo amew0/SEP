@@ -18,6 +18,8 @@ from django.views.decorators.csrf import csrf_exempt
 import secrets
 
 from banking import scheduler
+from banking.scheduler import update_bal
+from banking.allowance_schedule import schedule_allowance
 from banking.reminder import schedule_reminder
 
 # Imported from current project
@@ -351,11 +353,23 @@ def allowance_api(request):
         userSub = data.get('userSub') # username
         amount = data.get('amount') # username
         date = data.get('date') # yy-mm-dd-hh-mm-ss
+        instant = data.get('instant')
         # 2023-03-28-07-25-17
-        print(userMain)
-        print(userSub)
-        print(amount)
-        print(date)
+        date_formatted = datetime.strptime(date, '%y/%m/%d %H:%M:%S')
+        print(type(amount))
+        print(date_formatted)
+        print(date_formatted.hour)
+        print("its here")
+        allowance = Allowance.objects.get(userMain=userMain)
+        
+        if(instant):
+            allowance.allowance+=int(amount)
+        allowance.dateTime=date_formatted
+        allowance.save()
+        # update_bal()
+        # scheduler.start()
+        schedule_allowance(userMain, int(amount), date_formatted)
+        # schedule a job every month
 
         # # Create Allowance object
         # allowance = Allowance.objects.create(

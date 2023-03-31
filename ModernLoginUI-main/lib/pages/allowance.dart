@@ -27,7 +27,8 @@ class AllowanceForm {
         'userSub': userSub,
         'amount': amount,
         'user': user,
-        'date': date
+        'date': date,
+        'instant': instant,
       };
 }
 
@@ -57,6 +58,7 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
     final url = Uri.parse(
         'http://127.0.0.1:8000/allowance_api'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
+    print(form.date);
     final body = json.encode(form.toJson());
     final response = await http.post(url, headers: headers, body: body);
     // final user=0;
@@ -157,8 +159,7 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
                   amount: amount.text.trim(),
                   instant: _isChecked,
                   user: widget.user,
-                  date:
-                      DateFormat('yyyy-MM-dd-hh-mm-ss').format(DateTime.now()));
+                  date: DateFormat('yy/MM/dd HH:mm:ss').format(DateTime.now()));
               // date: DateFormat('yyyy-MM-dd').format(date));
 
               await Allowance(form);

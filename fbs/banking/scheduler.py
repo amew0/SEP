@@ -20,7 +20,8 @@ def update_bank_balance():
 
 # scheduler.add_job(tasks, 'cron', month='*', day='1')
 # scheduler.add_job(update_bank_balance, 'interval', minutes=5)#, args=[user_id])
-scheduler.add_job(update_bank_balance, CronTrigger(hour=22,minute=20))#, args=[user_id])
+def update_bal():
+    scheduler.add_job(update_bank_balance, CronTrigger(hour=20,minute=34))#, args=[user_id])
 
-scheduler.start()
-# scheduler.shutdown()
+    scheduler.start()
+    # scheduler.shutdown()
