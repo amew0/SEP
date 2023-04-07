@@ -16,7 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 # from rest_framework.response import Response
 # from rest_framework_simplejwt.tokens import RefreshToken
 import secrets
-
+from django.db.models import Sum
 from banking import scheduler
 from banking.scheduler import update_bal
 from banking.allowance_schedule import schedule_allowance
@@ -186,7 +186,7 @@ def pay_bills(request):
             date=date
         )
         bill.save()
-        stat=str(billType+", "+billDescription+", "+billAmount+". ")
+        stat=" paid bill, " + str(billType)+", "+billDescription+", an amount "+billAmount+" AED. "
         Statement=statement.objects.create(
             userId=int(user[0]['UserId']),
             statements=stat
@@ -230,7 +230,7 @@ def add_debits(request):
             
         )
         debit.save()
-        stat=DebitName+", "+DebitAmount+". "
+        stat="Added Debit, "+ str(DebitName)+ ", of amount "+ str(DebitAmount)+" AED. "
         Statement=statement.objects.create(userId=user[0]['UserId'],statements=stat)
         Statement.save()
         schedule_reminder(user_id=user[0]['UserId'], reminder_text="Take out the trash")
@@ -266,6 +266,7 @@ def login_view_flutter(request):
             user=user.serialize()
             print(user["Privilege"])
             token = str(generate_tokens(user))
+            # print(type(generator(token)))
             user1.append(user)
             user1.append(token)
             # return JsonResponse({'message': 'success'} , status=200)
@@ -330,12 +331,12 @@ def get_statement(request):
     data = json.loads(request.body)
     user=data.get('user')
     if user[0]['Privilege'] == "Main":
-        stats = statement.objects.filter(userId=user[0]['UserId']).values()
+        stats = statement.objects.get(userId=user[0]['UserId']).statements
         # queryset = statement.objects.filter(userId=user[0]['UserId']).values()
-        result_str = json.dumps(list(stats))
+        # result_str = json.dumps(list(stats))
         print(stats)
-        print(result_str)
-        return JsonResponse([result_str], safe=False, status=200)
+        # print(result_str)
+        return JsonResponse([stats], safe=False, status=200)
 
     else:
         bills = Bill.objects.filter(billUser=request.user)
@@ -366,6 +367,9 @@ def allowance_api(request):
             allowance.allowance+=int(amount)
         allowance.dateTime=date_formatted
         allowance.save()
+        stat=+" Sent an allowance of "+ str(amount)+ " AED to " + str(userSub)
+        Statement=statement.objects.create(userId=userMain,statements=stat)
+        Statement.save()
         # update_bal()
         # scheduler.start()
         schedule_allowance(userMain, int(amount), date_formatted)
@@ -392,3 +396,31 @@ def allowance_api(request):
             list(mainSsubs),
             safe=False, 
             status=200)
+
+@csrf_exempt
+def chatbot(request):
+    # print(request.user)
+    data = json.loads(request.body)
+    user = data.get('user')
+    if(user[0]['Privilege']=='Main'):
+        accNum = user[0]['Account']
+        acc = CreditCardDetail.objects.get(accountNumber=accNum)
+        current_balance = acc.balance
+        print(current_balance)
+        current_bills = Bill.objects.filter(accountNumBill=acc).aggregate(Sum('billAmount'))
+        current_bills = float(current_bills['billAmount__sum'])
+        print(current_bills)
+        # current_bills = Bill.objects.filter(accountNumBill='0000-0000-0000-0000').aggregate(Sum('billAmount'))['amount__bill']
+        current_debits = Debit.objects.filter(accountNumDebit=acc).aggregate(Sum('DebitAmount'))
+        current_debits = float(current_debits['DebitAmount__sum'])
+        print(current_debits)
+        safe_spend = float(current_balance) - (current_bills+ current_debits)
+        
+        message = "You are safe to spend "+ str(safe_spend) + " and after the 28th, you can spend " + str(safe_spend+7000)
+        print(message)
+    else:
+        message = "this is only for Main users"
+    
+
+        # current_debits = Debit.objects.filter(accountNumDebit='0000-0000-0000-0000').aggregate(Sum('DebitAmount'))['amount__debit']
+    return JsonResponse(message, safe=False, status=200)

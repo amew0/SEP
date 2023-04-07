@@ -23,6 +23,16 @@ class userForm {
       };
 }
 
+class ChatMessage {
+  final String message;
+  final bool isUserMessage;
+
+  const ChatMessage({
+    required this.message,
+    required this.isUserMessage,
+  });
+}
+
 class Homepage extends StatefulWidget {
   @override
   dynamic user;
@@ -34,9 +44,16 @@ class _HomepageState extends State<Homepage> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _msg = TextEditingController();
+
   bool _isLoading = false;
   late List<dynamic> itemList = [];
-
+  List<ChatMessage> messages = [
+    ChatMessage(
+      message: 'Hi, I am a chatbot. How can I help you?',
+      isUserMessage: false,
+    ),
+  ];
   // NfcSession session = await FlutterNfcKit.startSession();
   // session.onDiscovered.listen((NfcTag tag) {
   // // Handle the discovered tag
@@ -77,6 +94,38 @@ class _HomepageState extends State<Homepage> {
       throw Exception('Failed to send');
     }
     return statement;
+  }
+
+  Future<void> sendMessage(String message) async {
+    messages.add(ChatMessage(
+      message: message,
+      isUserMessage: true,
+    ));
+    setState(() {});
+    final form = userForm(
+      user: widget.user,
+    );
+    final body = json.encode(form.toJson());
+
+    final response = await http.post(
+      Uri.parse('http://127.0.0.1:8000/chatbot'),
+      body: body,
+    );
+    if (response.statusCode == 200) {
+      print(response.body);
+      messages.add(ChatMessage(
+        message: response.body,
+        isUserMessage: false,
+      ));
+    } else {
+      print("welp");
+      messages.add(ChatMessage(
+        message: 'Oops! Something went wrong.',
+        isUserMessage: false,
+      ));
+    }
+    setState(() {});
+    print("end of function");
   }
 
   Future<void> logout(user) async {
@@ -192,6 +241,16 @@ class _HomepageState extends State<Homepage> {
                             TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
                       ),
                     ),
+
+                    TextButton(
+                      onPressed: () {},
+                      child: Text(
+                        'Pay',
+                        style:
+                            TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
+                      ),
+                    ),
+
                     TextButton(
                       onPressed: () {
                         if (widget.user[0]['Privilege'] == "Main") {
@@ -253,6 +312,93 @@ class _HomepageState extends State<Homepage> {
                       },
                       child: Text("NFC"),
                     ),
+
+                    ElevatedButton(
+                      onPressed: () {
+                        if (widget.user[0]['Privilege'] == "Main") {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return Dialog(
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  height: 400,
+                                  child: Column(
+                                    children: [
+                                      Builder(
+                                        builder: (context) {
+                                          return Expanded(
+                                            child: ListView.builder(
+                                              itemCount: messages.length,
+                                              itemBuilder: (context, index) {
+                                                final message = messages[index];
+                                                return Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Align(
+                                                    alignment: message
+                                                            .isUserMessage
+                                                        ? Alignment.centerRight
+                                                        : Alignment.centerLeft,
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        color: message
+                                                                .isUserMessage
+                                                            ? Colors.blueGrey
+                                                            : Colors.grey[300],
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(16),
+                                                      ),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8),
+                                                      child: Text(
+                                                        message.message,
+                                                        style: const TextStyle(
+                                                            fontSize: 16),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: TextFormField(
+                                              controller: _msg,
+                                              decoration: const InputDecoration(
+                                                  hintText: 'Type a message'),
+                                              // onSubmitted: (value) {
+                                              //   print(value);
+                                              //   sendMessage(value);
+                                              // },
+                                            ),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              setState(() {});
+                                              sendMessage(_msg.text.trim());
+                                            },
+                                            child: const Text('Send'),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        }
+                      },
+                      child: const Text('Open ChatBot'),
+                    )
                     // SizedBox(height: 16.0),
                   ],
                 ),

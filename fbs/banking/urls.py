@@ -10,6 +10,7 @@ urlpatterns = [
     path('statement', views.get_statement, name="statement"),
     path("logout", views.logout_view, name="logout"),
     path("family", views.family_member, name="family"),
+    path("chatbot", views.chatbot, name="chatbot"),
     path("pay_bills",views.pay_bills, name="pay_bills"),
     path("add_debits",views.add_debits,name="add_debits"),
     path("allowance_api",views.allowance_api,name="allowance_api"),
