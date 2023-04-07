@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:modernlogintute/components/my_textfield.dart';
 import 'package:modernlogintute/pages/Homepage.dart';
 import 'package:modernlogintute/pages/Registrationpage.dart';
+import 'package:nfc_manager/nfc_manager.dart';
 
 class LoginForm {
   String username;
@@ -167,6 +168,33 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
 
+              TextButton(
+                onPressed: () async {
+                  // Check availability
+                  bool isAvailable =
+                      await NfcManager.instance.isAvailable() ?? false;
+                  print("in");
+                  print(isAvailable);
+                  // Start Session
+                  NfcManager.instance.startSession(
+                    // print("hey")
+                    onDiscovered: (NfcTag? tag) async {
+                      await nfc_handle();
+                      print("nfc found");
+                      if (tag != null) {
+                        print("not null");
+                      } else
+                        print("found");
+                      // Do something with an NfcTag instance.
+                    },
+                  );
+                  // Stop Session
+                  NfcManager.instance.stopSession();
+                  print("out");
+                },
+                child: Text("NFC"),
+              ),
+
               const SizedBox(height: 25),
 
               // ElevatedButton(
@@ -229,4 +257,8 @@ class LoginPage extends StatelessWidget {
       ),
     );
   }
+}
+
+nfc_handle() {
+  print("nfc_handle function called");
 }
