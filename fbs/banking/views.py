@@ -1,4 +1,5 @@
 import json
+import string
 from tokenize import generate_tokens
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -21,6 +22,8 @@ from banking import scheduler
 from banking.scheduler import update_bal
 from banking.allowance_schedule import schedule_allowance
 from banking.reminder import schedule_reminder
+from twilio.rest import Client
+# from django.contrib.auth.password_validation import make_random_password
 
 # Imported from current project
 from .models import *
@@ -252,6 +255,33 @@ def credit_card_details(request):
 def login_view_flutter(request):
     if request.method == 'POST':
         # scheduler.start()
+        # passcode = make_random_password(length=10)
+        alphabet = string.ascii_letters + string.digits
+        passcode = ''.join(secrets.choice(alphabet) for i in range(12))
+        print(passcode)
+        account_sid = 'AC0215eb4c081834ccb49951637b791194'
+        auth_token = '7bee7dff2621b0cf3eee3058f89da322'
+
+        # Create a Twilio client
+        client = Client(account_sid, auth_token)
+
+        # The message to send
+        message = client.messages.create(
+            body=str(passcode),
+            from_='+15076903504',  # Your Twilio phone number
+            to='+971524930256'     # The recipient's phone = number
+        )
+
+        # Return a response indicating success or failure
+        if message.sid:
+            print("sms sent")
+        else:
+            print("sms not sent")
+
+
+
+
+
         data = json.loads(request.body)
         print(data)
         username = data.get('username')
@@ -285,6 +315,27 @@ def registration_view_flutter(request,called_from):
         username = data.get('username')
         phone_number = data.get('phonenumber')
         dateOfBirth = data.get('dateofbirth')
+        alphabet = string.ascii_letters + string.digits
+        password = ''.join(secrets.choice(alphabet) for i in range(12))
+        print(password)
+        account_sid = 'AC0215eb4c081834ccb49951637b791194'
+        auth_token = '7bee7dff2621b0cf3eee3058f89da322'
+
+        # Create a Twilio client
+        client = Client(account_sid, auth_token)
+
+        # The message to send
+        message = client.messages.create(
+            body=str(password),
+            from_='+15076903504',  # Your Twilio phone number
+            to=str(phone_number)     # The recipient's phone = number
+        )
+
+        # Return a response indicating success or failure
+        if message.sid:
+            print("sms sent")
+        else:
+            print("sms not sent")
         # privilege = "Main"
         privilege = data.get('privilege')
         print(phone_number)
@@ -302,7 +353,7 @@ def registration_view_flutter(request,called_from):
             user = User.objects.create_user(
                 username, 
                 EMAIL, 
-                PASSWORD,
+                password,
                 account = account,
                 dateOfBirth = dateOfBirth,
                 privilege = privilege

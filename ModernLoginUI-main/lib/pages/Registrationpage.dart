@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter_sms/flutter_sms.dart';
 import 'package:http/http.dart' as http;
 // import 'package:sms/sms.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:date_field/date_field.dart';
 import 'package:modernlogintute/pages/Homepage.dart';
 import 'package:modernlogintute/pages/login_page.dart';
+// import 'package:permission_handler/permission_handler.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 
 class registerForm {
@@ -196,6 +198,22 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 // Do something with the user's registration information
                 // String username = _usernameController.text;
                 // String phoneNumber = _phoneNumberController.text;
+                // String message = "This is a test message!";
+                // print(message);
+                // // print("yoooo11");
+                // List<String> recipents = [_phoneNumberController.text.trim()];
+
+                // if (await Permission.sms.request().isGranted) {
+                //   String _result = await sendSMS(
+                //           message: message,
+                //           recipients: recipents,
+                //           sendDirect: true)
+                //       .catchError((onError) {
+                //     print(onError);
+                //   });
+                //   print(_result);
+                // } else
+                //   print("no permission");
                 final form = registerForm(
                     username: _usernameController.text.trim(),
                     phonenumber: _phoneNumberController.text.trim(),

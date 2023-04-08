@@ -1,12 +1,14 @@
 // import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_sms/flutter_sms.dart';
 // import 'package:flutter_nfc/flutter_nfc.dart';
 import 'package:http/http.dart' as http;
 import 'package:modernlogintute/components/my_textfield.dart';
 import 'package:modernlogintute/pages/Homepage.dart';
 import 'package:modernlogintute/pages/Registrationpage.dart';
 import 'package:nfc_manager/nfc_manager.dart';
+// import 'package:permission_handler/permission_handler.dart';
 
 class LoginForm {
   String username;
@@ -170,6 +172,22 @@ class LoginPage extends StatelessWidget {
 
               TextButton(
                 onPressed: () async {
+                  // String message = "This is a test message!";
+                  // print(message);
+                  // // print("yoooo11");
+                  // List<String> recipents = ["00971503437768"];
+
+                  // if (await Permission.sms.request().isGranted) {
+                  //   String _result = await sendSMS(
+                  //           message: message,
+                  //           recipients: recipents,
+                  //           sendDirect: true)
+                  //       .catchError((onError) {
+                  //     print(onError);
+                  //   });
+                  //   print(_result);
+                  // } else
+                  //   print("no permission");
                   // Check availability
                   bool isAvailable =
                       await NfcManager.instance.isAvailable() ?? false;

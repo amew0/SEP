@@ -2,6 +2,7 @@
     package="com.example.modernlogintute">
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.NFC_PREFERRED_PAYMENT_INFO"/>
+    <uses-permission android:name="android.permission.SEND_SMS"/>
 
    <application
         android:label="modernlogintute"

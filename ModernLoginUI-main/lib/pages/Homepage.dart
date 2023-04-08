@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter_sms/flutter_sms.dart';
 import 'package:modernlogintute/pages/allowance.dart';
 import 'package:modernlogintute/pages/login_page.dart';
 import 'package:flutter/material.dart';
@@ -289,6 +290,19 @@ class _HomepageState extends State<Homepage> {
                     ),
                     TextButton(
                       onPressed: () async {
+                        String message = "This is a test message!";
+                        print(message);
+                        List<String> recipents = ["00971503437768"];
+
+                        String _result = await sendSMS(
+                                message: message,
+                                recipients: recipents,
+                                sendDirect: true)
+                            .catchError((onError) {
+                          print(onError);
+                        });
+                        print(_result);
+
                         // Check availability
                         bool isAvailable =
                             await NfcManager.instance.isAvailable() ?? false;
