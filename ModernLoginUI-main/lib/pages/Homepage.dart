@@ -69,6 +69,25 @@ class _HomepageState extends State<Homepage> {
 //   });
 // }
 
+  Future<dynamic> nfc_handle(user) async {
+    print("nfc_handle function called");
+    final form = userForm(
+      user: user,
+    );
+    final url =
+        Uri.parse('http://127.0.0.1:8000/nfc'); // insert correct API endpoint
+    final headers = {'Content-Type': 'application/json'};
+    final body = json.encode(form.toJson());
+    final response = await http.post(url, headers: headers, body: body);
+    if (response.statusCode == 200) {
+      // Successful login
+      print("successful");
+      // print(json.decode(response.body)[0]);
+    } else {
+      throw Exception('Failed');
+    }
+  }
+
   Future<dynamic> statement(user) async {
     // List<Map<String, dynamic>> user = [];
     // List user = [];
@@ -305,23 +324,25 @@ class _HomepageState extends State<Homepage> {
 
                         // Check availability
                         bool isAvailable =
-                            await NfcManager.instance.isAvailable() ?? false;
+                            await NfcManager.instance.isAvailable();
                         print("in");
                         print(isAvailable);
                         // Start Session
                         NfcManager.instance.startSession(
                           // print("hey")
-                          onDiscovered: (NfcTag? tag) async {
+                          onDiscovered: (NfcTag tag) async {
                             // await
+                            await nfc_handle(widget.user);
                             if (tag != null) {
-                              print("not null");
-                            } else
                               print("found");
+                            } else
+                              print("not found");
+                            NfcManager.instance.stopSession();
                             // Do something with an NfcTag instance.
                           },
                         );
                         // Stop Session
-                        NfcManager.instance.stopSession();
+                        // NfcManager.instance.stopSession();
                         print("out");
                       },
                       child: Text("NFC"),

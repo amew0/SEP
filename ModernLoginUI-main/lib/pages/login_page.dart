@@ -1,4 +1,5 @@
 // import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_sms/flutter_sms.dart';
@@ -64,24 +65,6 @@ class LoginPage extends StatelessWidget {
     print(user);
     return user;
   }
-
-  // Future<void> signUp() async {
-  //   // Make the GET request
-  //   final response = await http.get(
-  //     Uri.parse(endpointUrl),
-  //     headers: headers,
-  //   );
-
-  //   // Check the response status code
-  //   if (response.statusCode == 200) {
-  //     // The request was successful, parse the response body
-  //     final List<dynamic> users = jsonDecode(response.body);
-  //     print('Users: $users');
-  //   } else {
-  //     // The request failed, handle the error
-  //     print('Request failed with status: ${response.statusCode}.');
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -172,63 +155,33 @@ class LoginPage extends StatelessWidget {
 
               TextButton(
                 onPressed: () async {
-                  // String message = "This is a test message!";
-                  // print(message);
-                  // // print("yoooo11");
-                  // List<String> recipents = ["00971503437768"];
-
-                  // if (await Permission.sms.request().isGranted) {
-                  //   String _result = await sendSMS(
-                  //           message: message,
-                  //           recipients: recipents,
-                  //           sendDirect: true)
-                  //       .catchError((onError) {
-                  //     print(onError);
-                  //   });
-                  //   print(_result);
-                  // } else
-                  //   print("no permission");
                   // Check availability
                   bool isAvailable =
-                      await NfcManager.instance.isAvailable() ?? false;
+                      await NfcManager.instance.isAvailable(); // ?? false;
                   print("in");
                   print(isAvailable);
                   // Start Session
                   NfcManager.instance.startSession(
-                    // print("hey")
-                    onDiscovered: (NfcTag? tag) async {
-                      await nfc_handle();
-                      print("nfc found");
+                    // print("hey");
+                    onDiscovered: (NfcTag tag) async {
+                      // await nfc_handle();
+                      print(tag);
                       if (tag != null) {
-                        print("not null");
-                      } else
                         print("found");
+                      } else
+                        print("not found");
+                      NfcManager.instance.stopSession();
                       // Do something with an NfcTag instance.
                     },
                   );
                   // Stop Session
-                  NfcManager.instance.stopSession();
+                  // NfcManager.instance.stopSession();
                   print("out");
                 },
                 child: Text("NFC"),
               ),
 
               const SizedBox(height: 25),
-
-              // ElevatedButton(
-              //   onPressed: () {
-              //     // NFC 监听
-              //     FlutterNfc.onTagDiscovered().listen((value) {
-              //       print("id: ${value.id}");
-              //       print("content: ${value.content}");
-              //     });
-              //   },
-              //   child: Text("NFC"),
-              //   style: ButtonStyle(
-              //     backgroundColor: MaterialStateProperty.all<Color>(
-              //         Color.fromARGB(255, 7, 7, 7)),
-              //   ),
-              // ),
 
               const SizedBox(height: 25),
               // not a member? register now
@@ -275,8 +228,4 @@ class LoginPage extends StatelessWidget {
       ),
     );
   }
-}
-
-nfc_handle() {
-  print("nfc_handle function called");
 }

@@ -23,10 +23,31 @@ from banking.scheduler import update_bal
 from banking.allowance_schedule import schedule_allowance
 from banking.reminder import schedule_reminder
 from twilio.rest import Client
+import firebase_admin
+from firebase_admin import credentials, messaging
 # from django.contrib.auth.password_validation import make_random_password
 
 # Imported from current project
 from .models import *
+
+
+# Initialize the Firebase Admin SDK
+cred = credentials.Certificate("C:\\Users\\admin\\Desktop\\sep project\\SEP\\family-banking-8b6be-firebase-adminsdk-vgdkp-0005ecdf63.json")
+firebase_admin.initialize_app(cred)
+
+message = messaging.Message(
+            notification=messaging.Notification(
+                title="Upcoming Birthday",
+                body="Your family member's birthday is coming up soon!",
+            ),
+            data={
+                "event": "birthday",
+                "family_member": "John",
+                "date": "2023-04-10",
+            },
+            # topic="family banking",
+            token="BHOUeQorshDjky_Xw0I6USgr0T2bZ1wwqI6UnbTU2lWJt3XHuK39MYfwraI0adEidH0278MyGEOcMBkLVLPjrAw",
+        )
 
 # Create your views here.
 def index(request):
@@ -118,6 +139,11 @@ def login_view(request):
 		username = request.POST["username"]
 		password = request.POST["password"]
 		user = authenticate(request, username=username, password=password)
+
+        # Create a message payload with the notification data 
+        # response = messaging.send(message)
+        # response = messaging.send(message)
+		
 
 		# Check if authentication successful
 		if user is not None:
@@ -255,32 +281,7 @@ def credit_card_details(request):
 def login_view_flutter(request):
     if request.method == 'POST':
         # scheduler.start()
-        # passcode = make_random_password(length=10)
-        alphabet = string.ascii_letters + string.digits
-        passcode = ''.join(secrets.choice(alphabet) for i in range(12))
-        print(passcode)
-        account_sid = 'AC0215eb4c081834ccb49951637b791194'
-        auth_token = '7bee7dff2621b0cf3eee3058f89da322'
-
-        # Create a Twilio client
-        client = Client(account_sid, auth_token)
-
-        # The message to send
-        message = client.messages.create(
-            body=str(passcode),
-            from_='+15076903504',  # Your Twilio phone number
-            to='+971524930256'     # The recipient's phone = number
-        )
-
-        # Return a response indicating success or failure
-        if message.sid:
-            print("sms sent")
-        else:
-            print("sms not sent")
-
-
-
-
+        
 
         data = json.loads(request.body)
         print(data)
@@ -289,12 +290,17 @@ def login_view_flutter(request):
         # print(username)
         # print(password)
         user = authenticate(request, username=username, password=password)
-        
+        response = messaging.send(message)
+        print(response)
         user1=[]
         if user is not None:
             login(request, user)
             user=user.serialize()
             print(user["Privilege"])
+
+            #send notification for birthday voucher here
+            # if(user['Privilege']=='Main'):
+            #     birthdays = 
             token = str(generate_tokens(user))
             # print(type(generator(token)))
             user1.append(user)
@@ -475,3 +481,35 @@ def chatbot(request):
 
         # current_debits = Debit.objects.filter(accountNumDebit='0000-0000-0000-0000').aggregate(Sum('DebitAmount'))['amount__debit']
     return JsonResponse(message, safe=False, status=200)
+
+@csrf_exempt
+def nfc(request):
+    data = json.loads(request.body)
+    user = data.get('user')
+    privilege=user[0]['Privilege']
+    if(privilege=='Main'):
+        accNum = user[0]['Account']
+        acc = CreditCardDetail.objects.get(accountNumber=accNum)
+        if(acc.balance>=20):
+            acc.balance = acc.balance - 20
+            stat=" Paid through NFC an amount of 20 AED"
+            Statement=statement.objects.create(userId=user[0]['UserId'],statements=stat)
+            Statement.save()
+            msg="success"
+        else:
+            msg="not enough balance"
+        acc.save()
+    else:
+        allowance_account = Allowance.objects.get(userSub=user[0]['Username'])
+        if(allowance_account.allowance>=20):
+            allowance_account.allowance = allowance_account.allowance - 20
+            stat=" Paid through NFC an amount of 20 AED"
+            Statement=statement.objects.create(userId=user[0]['UserId'],statements=stat)
+            Statement.save()
+            msg="success"
+        else:
+            msg="not enough balance"
+        allowance_account.save()
+    return JsonResponse({"message": msg}, safe=False, status=200)
+
+

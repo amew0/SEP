@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1092282798531",
+    "project_id": "family-banking-8b6be",
+    "storage_bucket": "family-banking-8b6be.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1092282798531:android:24a6dcc1d571ad7903ad76",
+        "android_client_info": {
+          "package_name": "com.example.modernlogintute"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1092282798531-cbnje04u2b667tjh3s2fldqq74m3fk22.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_Lajvu2jS3UDXVQ8YVzLEH6zC85O8FpA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1092282798531-cbnje04u2b667tjh3s2fldqq74m3fk22.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
