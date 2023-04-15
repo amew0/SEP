@@ -12,16 +12,17 @@ scheduler.add_jobstore(DjangoJobStore(), 'default')
 def update_bank_balance():
     # Retrieve all users from the database
     # users = User.objects.all()
-    account = CreditCardDetail.objects.get(accountNumber='0000-0000-0000-0001')
-    account.balance+=1
-    account.save()
+    accounts = CreditCardDetail.objects.all()
+    for account in accounts:
+        account.balance+=100
+        account.save()
     print("did it")
     print(datetime.now())
 
 # scheduler.add_job(tasks, 'cron', month='*', day='1')
 # scheduler.add_job(update_bank_balance, 'interval', minutes=5)#, args=[user_id])
 def update_bal():
-    scheduler.add_job(update_bank_balance, CronTrigger(hour=20,minute=34))#, args=[user_id])
-
+    scheduler.add_job(update_bank_balance, CronTrigger(minute='*/10'))#, args=[user_id])
+    print("schedule started now")
     scheduler.start()
     # scheduler.shutdown()

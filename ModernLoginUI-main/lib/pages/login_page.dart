@@ -1,6 +1,7 @@
 // import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'dart:convert';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sms/flutter_sms.dart';
 // import 'package:flutter_nfc/flutter_nfc.dart';
@@ -9,6 +10,9 @@ import 'package:modernlogintute/components/my_textfield.dart';
 import 'package:modernlogintute/pages/Homepage.dart';
 import 'package:modernlogintute/pages/Registrationpage.dart';
 import 'package:nfc_manager/nfc_manager.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_core/firebase_core.dart';
+
 // import 'package:permission_handler/permission_handler.dart';
 
 class LoginForm {
@@ -23,25 +27,26 @@ class LoginForm {
       };
 }
 
-class LoginPage extends StatelessWidget {
-  LoginPage({super.key});
-  LoginPage.ensureInitialized();
+class LoginPage extends StatefulWidget {
+  @override
+  Loginpage createState() => Loginpage();
+}
+
+class Loginpage extends State<LoginPage> {
+  //StatelessWidget {
+  // LoginPage({super.key});
+  // LoginPage.ensureInitialized();
   // text editing controllers
+  final _formKey = GlobalKey<FormState>();
+
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
 
-  // Future<void> storeToken(String token) async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   await prefs.setString('auth_token', token);
-  // }
-
-  // Future<String?> getToken() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   return prefs.getString('auth_token');
-  // }
-
   Future<dynamic> login(LoginForm form) async {
     // https://fbsbanking.herokuapp.com/
+    // getDeviceToken();
+    // form.username = form.username + token_global;
+    print(form.username);
     final url = Uri.parse(
         'http://127.0.0.1:8000/login_flutter'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
@@ -66,6 +71,42 @@ class LoginPage extends StatelessWidget {
     return user;
   }
 
+  String notificationMsg = "waiting for notifications";
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // LocalNotificationService.initilize();
+
+    // Terminated State
+    FirebaseMessaging.instance.getInitialMessage().then((event) {
+      if (event != null) {
+        setState(() {
+          notificationMsg =
+              "${event.notification!.title} ${event.notification!.body} I am coming from terminated state";
+        });
+      }
+    });
+
+    // Foreground State
+    FirebaseMessaging.onMessage.listen((event) {
+      // LocalNotificationService.showNotificationOnForeground(event);
+      setState(() {
+        notificationMsg =
+            "${event.notification!.title} ${event.notification!.body} I am coming from foreground";
+      });
+    });
+
+    // background State
+    FirebaseMessaging.onMessageOpenedApp.listen((event) {
+      setState(() {
+        notificationMsg =
+            "${event.notification!.title} ${event.notification!.body} I am coming from background";
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,7 +125,13 @@ class LoginPage extends StatelessWidget {
               ),
 
               const SizedBox(height: 50),
-
+              Text(
+                notificationMsg,
+                style: TextStyle(
+                  color: Colors.grey[700],
+                  fontSize: 16,
+                ),
+              ),
               // welcome!
               Text(
                 'Welcome!',

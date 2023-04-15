@@ -64,13 +64,6 @@ INSTALLED_APPS = [
     'django_apscheduler',
 ]
 
-# Celery settings
-CELERY_BEAT_SCHEDULE = {
-    'update-book-title-every-hour': {
-        'task': 'banking.tasks.update_book_title',
-        'schedule': timedelta(hours=1),
-    },
-}
 
 # Celery tasks
 CELERY_IMPORTS = (

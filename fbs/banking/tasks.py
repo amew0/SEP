@@ -1,10 +1,15 @@
 from datetime import datetime
 from banking.models import *
+from django.core.management.base import BaseCommand
 
+class pay_salary(BaseCommand):
+    help = 'Notify users of upcoming birthdays'
 
-def update_bank_balance():
-    # Retrieve all users from the database
-    # users = User.objects.all()
-    account = CreditCardDetail.objects.get(AccountNumber='0000-0000-0000-0001')
-    account.balance+=1
-   
+    def handle(self):
+        acc = CreditCardDetail.objects.all()
+
+        for person in acc:
+            person.balance=person.balance+100
+        acc.save()
+        pass
+

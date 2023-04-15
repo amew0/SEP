@@ -1,13 +1,17 @@
 import 'dart:convert';
+// import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_sms/flutter_sms.dart';
 import 'package:modernlogintute/pages/allowance.dart';
 import 'package:modernlogintute/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:modernlogintute/pages/statement.dart';
-// import 'package:flutter_nfc_kit/flutter_nfc_kit.dart';
-// import 'package:flutter_nfc/flutter_nfc.dart';
-// ignore: import_of_legacy_library_into_null_safe
+// import 'package:firebase_messaging_web/firebase_messaging_web.dart';
+// import 'package:firebase_core_web/firebase_core_web.dart';
+// import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+// import 'package:modernlogintute/services/local_notifications.dart';
+
 import 'package:nfc_manager/nfc_manager.dart';
 import 'Registrationpage.dart';
 import 'bill.dart';
@@ -55,19 +59,6 @@ class _HomepageState extends State<Homepage> {
       isUserMessage: false,
     ),
   ];
-  // NfcSession session = await FlutterNfcKit.startSession();
-  // session.onDiscovered.listen((NfcTag tag) {
-  // // Handle the discovered tag
-  // String text = await tag.readText();
-  // print(text);
-  // });
-  // await session.stop();
-//   void startNFCSession() async {
-//   FlutterNfc().startSession(onDiscovered: (NfcTag tag) {
-//     // Handle tag data here
-//     print(tag);
-//   });
-// }
 
   Future<dynamic> nfc_handle(user) async {
     print("nfc_handle function called");
@@ -177,6 +168,42 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
+  String notificationMsg = "waiting for notifications";
+
+  // @override
+  // void initState() {
+  //   // TODO: implement initState
+  //   super.initState();
+  //   LocalNotificationService.initilize();
+
+  //   // Terminated State
+  //   FirebaseMessaging.instance.getInitialMessage().then((event) {
+  //     if (event != null) {
+  //       setState(() {
+  //         notificationMsg =
+  //             "${event.notification!.title} ${event.notification!.body} I am coming from terminated state";
+  //       });
+  //     }
+  //   });
+
+  //   // Foregrand State
+  //   FirebaseMessaging.onMessage.listen((event) {
+  //     LocalNotificationService.showNotificationOnForeground(event);
+  //     setState(() {
+  //       notificationMsg =
+  //           "${event.notification!.title} ${event.notification!.body} I am coming from foreground";
+  //     });
+  //   });
+
+  //   // background State
+  //   FirebaseMessaging.onMessageOpenedApp.listen((event) {
+  //     setState(() {
+  //       notificationMsg =
+  //           "${event.notification!.title} ${event.notification!.body} I am coming from background";
+  //     });
+  //   });
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -192,6 +219,13 @@ class _HomepageState extends State<Homepage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    Text(
+                      notificationMsg,
+                      style: TextStyle(
+                        color: Colors.grey[700],
+                        fontSize: 16,
+                      ),
+                    ),
                     TextButton(
                       onPressed: () async {
                         await logout(widget.user);
@@ -309,18 +343,18 @@ class _HomepageState extends State<Homepage> {
                     ),
                     TextButton(
                       onPressed: () async {
-                        String message = "This is a test message!";
-                        print(message);
-                        List<String> recipents = ["00971503437768"];
+                        // String message = "This is a test message!";
+                        // print(message);
+                        // List<String> recipents = ["00971503437768"];
 
-                        String _result = await sendSMS(
-                                message: message,
-                                recipients: recipents,
-                                sendDirect: true)
-                            .catchError((onError) {
-                          print(onError);
-                        });
-                        print(_result);
+                        // String _result = await sendSMS(
+                        //         message: message,
+                        //         recipients: recipents,
+                        //         sendDirect: true)
+                        //     .catchError((onError) {
+                        //   print(onError);
+                        // });
+                        // print(_result);
 
                         // Check availability
                         bool isAvailable =
@@ -335,6 +369,8 @@ class _HomepageState extends State<Homepage> {
                             await nfc_handle(widget.user);
                             if (tag != null) {
                               print("found");
+                              // Ndef ndef = await tag.readNdef();
+                              // NdefMessage message = ndef.cachedMessage;
                             } else
                               print("not found");
                             NfcManager.instance.stopSession();

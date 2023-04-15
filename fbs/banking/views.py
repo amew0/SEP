@@ -1,6 +1,7 @@
 import json
 import string
 from tokenize import generate_tokens
+from webbrowser import BackgroundBrowser
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.contrib.auth import authenticate, login, logout
@@ -26,28 +27,10 @@ from twilio.rest import Client
 import firebase_admin
 from firebase_admin import credentials, messaging
 # from django.contrib.auth.password_validation import make_random_password
-
+import requests
 # Imported from current project
 from .models import *
 
-
-# Initialize the Firebase Admin SDK
-cred = credentials.Certificate("C:\\Users\\admin\\Desktop\\sep project\\SEP\\family-banking-8b6be-firebase-adminsdk-vgdkp-0005ecdf63.json")
-firebase_admin.initialize_app(cred)
-
-message = messaging.Message(
-            notification=messaging.Notification(
-                title="Upcoming Birthday",
-                body="Your family member's birthday is coming up soon!",
-            ),
-            data={
-                "event": "birthday",
-                "family_member": "John",
-                "date": "2023-04-10",
-            },
-            # topic="family banking",
-            token="BHOUeQorshDjky_Xw0I6USgr0T2bZ1wwqI6UnbTU2lWJt3XHuK39MYfwraI0adEidH0278MyGEOcMBkLVLPjrAw",
-        )
 
 # Create your views here.
 def index(request):
@@ -287,11 +270,10 @@ def login_view_flutter(request):
         print(data)
         username = data.get('username')
         password = data.get('password')
-        # print(username)
+        print(username)
         # print(password)
         user = authenticate(request, username=username, password=password)
-        response = messaging.send(message)
-        print(response)
+        update_bal()
         user1=[]
         if user is not None:
             login(request, user)
