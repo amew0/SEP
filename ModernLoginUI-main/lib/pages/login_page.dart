@@ -3,27 +3,41 @@ import 'dart:async';
 import 'dart:convert';
 // import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_sms/flutter_sms.dart';
 // import 'package:flutter_nfc/flutter_nfc.dart';
 import 'package:http/http.dart' as http;
 import 'package:modernlogintute/components/my_textfield.dart';
 import 'package:modernlogintute/pages/Homepage.dart';
 import 'package:modernlogintute/pages/Registrationpage.dart';
+import 'package:modernlogintute/services/local_notifications.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-// import 'package:permission_handler/permission_handler.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+// Future<void> requestNotificationPermission() async {
+//   final PermissionStatus permissionStatus =
+//       await Permission.notification.request();
+//   if (permissionStatus == PermissionStatus.denied) {
+//     // handle denied permission
+//     print("permission denied");
+//   } else
+//     print("permission granted");
+// }
 
 class LoginForm {
   String username;
   String password;
-
-  LoginForm({required this.username, required this.password});
+  String? token;
+  LoginForm(
+      {required this.username, required this.password, required this.token});
 
   Map<String, dynamic> toJson() => {
         'username': username,
         'password': password,
+        'token': token,
       };
 }
 
@@ -42,10 +56,28 @@ class Loginpage extends State<LoginPage> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
 
+  // static const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
+  //   'channelId', // your channel id
+  //   'com.example.modernlogintute', // your channel name
+  //   importance: Importance.high,
+  //   priority: Priority.high,
+  //   enableVibration: true,
+  //   playSound: true,
+  // );
+
+  // // create the notification channel
+  // const NotificationChannel notificationChannel = NotificationChannel(
+  //   'channelId', // your channel id
+  //   'channelName', // your channel name
+  //   'channelDescription', // your channel description
+  //   importance: Importance.high,
+  // );
+
   Future<dynamic> login(LoginForm form) async {
     // https://fbsbanking.herokuapp.com/
     // getDeviceToken();
     // form.username = form.username + token_global;
+
     print(form.username);
     final url = Uri.parse(
         'http://127.0.0.1:8000/login_flutter'); // insert correct API endpoint
@@ -77,7 +109,8 @@ class Loginpage extends State<LoginPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    // LocalNotificationService.initilize();
+    // requestNotificationPermission();
+    LocalNotificationService.initilize();
 
     // Terminated State
     FirebaseMessaging.instance.getInitialMessage().then((event) {
@@ -91,7 +124,7 @@ class Loginpage extends State<LoginPage> {
 
     // Foreground State
     FirebaseMessaging.onMessage.listen((event) {
-      // LocalNotificationService.showNotificationOnForeground(event);
+      LocalNotificationService.showNotificationOnForeground(event);
       setState(() {
         notificationMsg =
             "${event.notification!.title} ${event.notification!.body} I am coming from foreground";
@@ -183,9 +216,13 @@ class Loginpage extends State<LoginPage> {
               // MyButton(onTap: login()),
               ElevatedButton(
                 onPressed: () async {
+                  String? fcm_token =
+                      await FirebaseMessaging.instance.getToken();
                   final form = LoginForm(
-                      username: usernameController.text.trim(),
-                      password: passwordController.text.trim());
+                    username: usernameController.text.trim(),
+                    password: passwordController.text.trim(),
+                    token: fcm_token,
+                  );
                   dynamic user = await login(form);
                   Navigator.push(
                     context,

@@ -15,7 +15,7 @@ Future<void> backroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  FirebaseMessaging _msg = FirebaseMessaging.instance;
+  // FirebaseMessaging _msg = FirebaseMessaging.instance;
   FirebaseMessaging.onBackgroundMessage(backroundHandler);
 
   runApp(const MyApp());

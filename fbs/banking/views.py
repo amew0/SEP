@@ -25,12 +25,40 @@ from banking.allowance_schedule import schedule_allowance
 from banking.reminder import schedule_reminder
 from twilio.rest import Client
 import firebase_admin
+from pyfcm import FCMNotification
+
 from firebase_admin import credentials, messaging
 # from django.contrib.auth.password_validation import make_random_password
 import requests
 # Imported from current project
 from .models import *
 
+
+# // Import the functions you need from the SDKs you need
+# import { initializeApp } from "firebase/app";
+# import { getAnalytics } from "firebase/analytics";
+# // TODO: Add SDKs for Firebase products that you want to use
+# // https://firebase.google.com/docs/web/setup#available-libraries
+
+# // Your web app's Firebase configuration
+# // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+# const firebaseConfig = {
+#   apiKey: "AIzaSyAYpOpo_fRCEgDw3HhGxaYuuwDo5me8_jU",
+#   authDomain: "sep-project-72f97.firebaseapp.com",
+#   projectId: "sep-project-72f97",
+#   storageBucket: "sep-project-72f97.appspot.com",
+#   messagingSenderId: "1005077484779",
+#   appId: "1:1005077484779:web:9f565a0f08911519389aae",
+#   measurementId: "G-6EEJM8Y7DG"
+# };
+
+# // Initialize Firebase
+# const app = initializeApp(firebaseConfig);
+# const analytics = getAnalytics(app);
+
+
+cred = credentials.Certificate('C:\\Users\\admin\\Desktop\\sep project\SEP\\fbs\\sep-project-72f97-firebase-adminsdk-r2pjg-58123de2b9.json')
+firebase_admin.initialize_app(cred)
 
 # Create your views here.
 def index(request):
@@ -270,8 +298,10 @@ def login_view_flutter(request):
         print(data)
         username = data.get('username')
         password = data.get('password')
+        fcm_token = data.get('token')
         print(username)
-        # print(password)
+        print(password)
+        print(fcm_token)
         user = authenticate(request, username=username, password=password)
         update_bal()
         user1=[]
@@ -279,7 +309,18 @@ def login_view_flutter(request):
             login(request, user)
             user=user.serialize()
             print(user["Privilege"])
+            # Construct a message payload to send to the FCM token
+            # message = messaging.Message(
+            #     data={
+            #         'title': 'django',
+            #         'body': 'hello from django',
+            #     },
+            #     token=fcm_token,
+            # )
 
+            # # Send the message to the FCM token
+            # response = messaging.send(message)
+            # print('Successfully sent message:', response)
             #send notification for birthday voucher here
             # if(user['Privilege']=='Main'):
             #     birthdays = 
