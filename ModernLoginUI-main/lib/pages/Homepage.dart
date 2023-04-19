@@ -16,6 +16,7 @@ import 'package:nfc_manager/nfc_manager.dart';
 import 'Registrationpage.dart';
 import 'bill.dart';
 import 'debit.dart';
+import 'chat.dart';
 
 class userForm {
   List user;
@@ -272,6 +273,24 @@ class _HomepageState extends State<Homepage> {
                       },
                       child: Text(
                         'Pay Bills',
+                        style:
+                            TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
+                      ),
+                    ),
+
+                    TextButton(
+                      onPressed: () {
+                        if (widget.user[0]['Privilege'] == "Main") {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return ChatScreen(user: widget.user);
+                            },
+                          );
+                        }
+                      },
+                      child: Text(
+                        'Chat',
                         style:
                             TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
                       ),

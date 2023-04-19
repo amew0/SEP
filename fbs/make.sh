@@ -1,0 +1,1 @@
+while read requirement; do if [[ "${requirement}" =~ ^a ]]; then echo "Skipping $requirement"; else pip install --no-cache-dir $requirement || echo "Failed to install $requirement"; fi; done < requirements.txt

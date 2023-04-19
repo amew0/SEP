@@ -57,7 +57,7 @@ from .models import *
 # const analytics = getAnalytics(app);
 
 
-cred = credentials.Certificate('C:\\Users\\admin\\Desktop\\sep project\SEP\\fbs\\sep-project-72f97-firebase-adminsdk-r2pjg-58123de2b9.json')
+cred = credentials.Certificate('sep-project-72f97-firebase-adminsdk-r2pjg-58123de2b9.json')
 firebase_admin.initialize_app(cred)
 
 # Create your views here.
