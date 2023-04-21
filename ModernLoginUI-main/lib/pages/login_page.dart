@@ -1,6 +1,7 @@
 // import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 // import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -15,7 +16,7 @@ import 'package:nfc_manager/nfc_manager.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-import 'package:permission_handler/permission_handler.dart';
+// import 'package:permission_handler/permission_handler.dart';
 
 // Future<void> requestNotificationPermission() async {
 //   final PermissionStatus permissionStatus =
@@ -55,7 +56,7 @@ class Loginpage extends State<LoginPage> {
 
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
-
+  String? fcm_token;
   // static const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
   //   'channelId', // your channel id
   //   'com.example.modernlogintute', // your channel name
@@ -78,9 +79,11 @@ class Loginpage extends State<LoginPage> {
     // getDeviceToken();
     // form.username = form.username + token_global;
 
+    print(form.token);
     print(form.username);
+
     final url = Uri.parse(
-        'https://fbsbanking.herokuapp.com/login_flutter'); // insert correct API endpoint
+        'http://127.0.0.1:8000/login_flutter'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
     final body = json.encode(form.toJson());
     final response = await http.post(url, headers: headers, body: body);
@@ -107,37 +110,39 @@ class Loginpage extends State<LoginPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
-    super.initState();
-    // requestNotificationPermission();
-    LocalNotificationService.initilize();
+    if (Platform.isAndroid || Platform.isIOS) {
+      // TODO: implement initState
+      super.initState();
+      // requestNotificationPermission();
+      LocalNotificationService.initilize();
 
-    // Terminated State
-    FirebaseMessaging.instance.getInitialMessage().then((event) {
-      if (event != null) {
+      // Terminated State
+      FirebaseMessaging.instance.getInitialMessage().then((event) {
+        if (event != null) {
+          setState(() {
+            notificationMsg =
+                "${event.notification!.title} ${event.notification!.body} I am coming from terminated state";
+          });
+        }
+      });
+
+      // Foreground State
+      FirebaseMessaging.onMessage.listen((event) {
+        LocalNotificationService.showNotificationOnForeground(event);
         setState(() {
           notificationMsg =
-              "${event.notification!.title} ${event.notification!.body} I am coming from terminated state";
+              "${event.notification!.title} ${event.notification!.body} I am coming from foreground";
         });
-      }
-    });
-
-    // Foreground State
-    FirebaseMessaging.onMessage.listen((event) {
-      LocalNotificationService.showNotificationOnForeground(event);
-      setState(() {
-        notificationMsg =
-            "${event.notification!.title} ${event.notification!.body} I am coming from foreground";
       });
-    });
 
-    // background State
-    FirebaseMessaging.onMessageOpenedApp.listen((event) {
-      setState(() {
-        notificationMsg =
-            "${event.notification!.title} ${event.notification!.body} I am coming from background";
+      // background State
+      FirebaseMessaging.onMessageOpenedApp.listen((event) {
+        setState(() {
+          notificationMsg =
+              "${event.notification!.title} ${event.notification!.body} I am coming from background";
+        });
       });
-    });
+    }
   }
 
   @override
@@ -149,7 +154,7 @@ class Loginpage extends State<LoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(height: 50),
+              // const SizedBox(height: 50),
 
               // logo
               const Icon(
@@ -157,7 +162,7 @@ class Loginpage extends State<LoginPage> {
                 size: 100,
               ),
 
-              const SizedBox(height: 50),
+              const SizedBox(height: 10),
               Text(
                 notificationMsg,
                 style: TextStyle(
@@ -175,7 +180,7 @@ class Loginpage extends State<LoginPage> {
               ),
 
               const SizedBox(
-                height: 25,
+                height: 10,
               ),
 
               // username textfield
@@ -210,14 +215,17 @@ class Loginpage extends State<LoginPage> {
                 ),
               ),
 
-              const SizedBox(height: 25),
+              const SizedBox(height: 10),
 
               // sign in button
               // MyButton(onTap: login()),
               ElevatedButton(
                 onPressed: () async {
-                  String? fcm_token =
-                      await FirebaseMessaging.instance.getToken();
+                  if (Platform.isAndroid) {
+                    fcm_token = await FirebaseMessaging.instance.getToken();
+                  } else {
+                    fcm_token = "";
+                  }
                   final form = LoginForm(
                     username: usernameController.text.trim(),
                     password: passwordController.text.trim(),
@@ -265,9 +273,9 @@ class Loginpage extends State<LoginPage> {
                 child: Text("NFC"),
               ),
 
-              const SizedBox(height: 25),
+              // const SizedBox(height: 25),
 
-              const SizedBox(height: 25),
+              // const SizedBox(height: 25),
               // not a member? register now
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -283,12 +291,12 @@ class Loginpage extends State<LoginPage> {
                   // ),
                   TextButton(
                     onPressed: () {
-                      String message = "login";
+                      // String message = "register";
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) =>
-                                RegistrationPage(message: message)),
+                                RegistrationPage(message: "register")),
                       );
                     },
                     child: Text(

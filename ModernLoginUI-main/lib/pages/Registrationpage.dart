@@ -15,24 +15,31 @@ class registerForm {
   String phonenumber;
   String dateofbirth;
   String? privilege;
+  String called_from;
+  List user;
   registerForm(
       {required this.username,
       required this.phonenumber,
       required this.dateofbirth,
-      required this.privilege});
+      required this.privilege,
+      required this.called_from,
+      required this.user});
 
   Map<String, dynamic> toJson() => {
         'username': username,
         'phonenumber': phonenumber,
         'dateofbirth': dateofbirth,
-        'privilege': privilege
+        'privilege': privilege,
+        'called_from': called_from,
+        'user': user,
       };
 }
 
 class RegistrationPage extends StatefulWidget {
   @override
   final String message;
-  RegistrationPage({required this.message});
+  dynamic user;
+  RegistrationPage({required this.message, this.user});
   _RegistrationPageState createState() => _RegistrationPageState();
 }
 
@@ -82,10 +89,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
     // final user=0;
     if (response.statusCode == 200) {
       // Successful login
-      print("successfully registered");
-      user = json.decode(response.body)[0];
-      if (widget.message != "family") {
+      print("successfully registered family member");
+
+      if (widget.message == "register") {
         // storeToken(user[1]);
+        user = json.decode(response.body)[0];
       }
 
       // Save the token to local storage or global state
@@ -94,7 +102,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
       throw Exception('Failed to register');
     }
-    print(user);
     return user;
   }
 
@@ -195,32 +202,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
             SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () async {
-                // Do something with the user's registration information
-                // String username = _usernameController.text;
-                // String phoneNumber = _phoneNumberController.text;
-                // String message = "This is a test message!";
-                // print(message);
-                // // print("yoooo11");
-                // List<String> recipents = [_phoneNumberController.text.trim()];
-
-                // if (await Permission.sms.request().isGranted) {
-                //   String _result = await sendSMS(
-                //           message: message,
-                //           recipients: recipents,
-                //           sendDirect: true)
-                //       .catchError((onError) {
-                //     print(onError);
-                //   });
-                //   print(_result);
-                // } else
-                //   print("no permission");
                 final form = registerForm(
                     username: _usernameController.text.trim(),
                     phonenumber: _phoneNumberController.text.trim(),
                     dateofbirth: DateFormat('yyyy-MM-dd').format(_selectedDate),
-                    privilege: selectedOption);
+                    privilege: selectedOption,
+                    called_from: widget.message,
+                    user: widget.user);
                 dynamic user = await register(form);
-                if (widget.message == "login") {
+                if (widget.message == "register") {
                   Navigator.push(
                     context,
                     MaterialPageRoute(

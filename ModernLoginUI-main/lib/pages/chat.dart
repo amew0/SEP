@@ -17,7 +17,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   final String _apiUrl = 'https://api.openai.com/v1/chat/completions';
 
-  final String _apiKey = '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';
+  final String _apiKey = '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';
 
   Future<String> _getResponse(String prompt) async {
     var headers = {
@@ -35,7 +35,7 @@ class _ChatScreenState extends State<ChatScreen> {
     var response =
         await http.post(Uri.parse(_apiUrl), headers: headers, body: body);
     var data = jsonDecode(response.body);
-
+    print(data);
     return data['choices'][0]['message']['content'];
   }
 

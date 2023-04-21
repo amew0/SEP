@@ -9,20 +9,19 @@ from . import tasks
 scheduler = BackgroundScheduler()
 scheduler.add_jobstore(DjangoJobStore(), 'default')
 
-def update_bank_balance():
+def update_bank_balance(phone):
     # Retrieve all users from the database
     # users = User.objects.all()
-    accounts = CreditCardDetail.objects.all()
-    for account in accounts:
-        account.balance+=100
-        account.save()
+    account = CreditCardDetail.objects.get(phoneNumber=phone)
+    account.balance+=7000
+    account.save()
     print("did it")
     print(datetime.now())
 
 # scheduler.add_job(tasks, 'cron', month='*', day='1')
 # scheduler.add_job(update_bank_balance, 'interval', minutes=5)#, args=[user_id])
-def update_bal():
-    scheduler.add_job(update_bank_balance, CronTrigger(minute='*/10'))#, args=[user_id])
+def update_bal(phone):
+    scheduler.add_job(update_bank_balance, CronTrigger(day=28,hour=10,minute=00), args=[phone])
     print("schedule started now")
     scheduler.start()
     # scheduler.shutdown()

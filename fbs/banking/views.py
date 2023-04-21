@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.contrib.auth import authenticate, login
 from django.http import JsonResponse
+from django.http import HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
 # from rest_framework.authtoken.views import ObtainAuthToken
 # from rest_framework.response import Response
@@ -25,7 +26,7 @@ from banking.allowance_schedule import schedule_allowance
 from banking.reminder import schedule_reminder
 from twilio.rest import Client
 import firebase_admin
-from pyfcm import FCMNotification
+# from pyfcm import FCMNotification
 
 from firebase_admin import credentials, messaging
 # from django.contrib.auth.password_validation import make_random_password
@@ -75,97 +76,93 @@ EMAIL = "a@a.a"
 @csrf_exempt
 def register(request):
     if request.method == "POST":
-        # user = register_user(request,"register")
-        print("its here")
-        # data = json.loads(request.body)
-        # # username = data.get('username')
-        # # phone_number = data.get('phoneNumber')
-        # print(request.body)
-        user = registration_view_flutter(request,"register")
+       
+        user = registration_view_flutter(request)
         user1=[]
-        login(request, user)
-        user=user.serialize()
-        token = str(generate_tokens(user))
-        user1.append(user)
-        user1.append(token)
-        return JsonResponse([ user1], safe=False, status=200)
-
-        # return render(request, "banking/index.html")
+        data = json.loads(request.body)
+        called_from = data.get('called_from')
+        if(called_from=="register"):
+            login(request, user)
+            user=user.serialize()
+            token = str(generate_tokens(user))
+            user1.append(user)
+            user1.append(token)
+            return JsonResponse([ user1], safe=False, status=200)
+        else:
+            return JsonResponse({'message':'successfully registered user'}, safe=False, status=200)
     else:
         return JsonResponse({'error': 'Invalid credentials'}, safe=False, status=400)
 
-        # return render(request, "banking/register.html")
+# def register_user(request,called_from):
+#     username = request.POST["username"]
+#     # fullname = request.POST["fullname"]
+#     phone_number = request.POST["phoneNumber"]
+#     dateOfBirth = request.POST["dateOfBirth"]
+#     privilege = request.POST.get("privilege")
 
-def register_user(request,called_from):
-    username = request.POST["username"]
-    # fullname = request.POST["fullname"]
-    phone_number = request.POST["phoneNumber"]
-    dateOfBirth = request.POST["dateOfBirth"]
-    privilege = request.POST.get("privilege")
+#     if called_from == "register":
+#         account = CreditCardDetail.objects.get(phoneNumber=phone_number)
+#     elif called_from == "family":
+#         account = CreditCardDetail.objects.get(phoneNumber = request.user.account.phoneNumber)
 
-    if called_from == "register":
-        account = CreditCardDetail.objects.get(phoneNumber=phone_number)
-    elif called_from == "family":
-        account = CreditCardDetail.objects.get(phoneNumber = request.user.account.phoneNumber)
+#     user = None
+#     try:
+#         # Attempt to create new user
+#         user = User.objects.create_user(username, EMAIL, PASSWORD, account = account,
+#             dateOfBirth = dateOfBirth,
+#             privilege = privilege
+#             )
+#         user.save()
 
-    user = None
-    try:
-        # Attempt to create new user
-        user = User.objects.create_user(username, EMAIL, PASSWORD, account = account,
-            dateOfBirth = dateOfBirth,
-            privilege = privilege
-            )
-        user.save()
-
-    except IntegrityError:
-        """
-        Handle possible error here, like:
-            Username already taken
-        """    
-        return render(request, "banking/register.html", {
-            "message": "Username already taken."
-        })
+#     except IntegrityError:
+#         """
+#         Handle possible error here, like:
+#             Username already taken
+#         """    
+#         return render(request, "banking/register.html", {
+#             "message": "Username already taken."
+#         })
 
 
-    if privilege == "Main":
+#     if privilege == "Main":
         
-        # User is 'Main' and hence should be linked to the bank account
-        account.linked_users.add(user)
-        account.save()
+#         # User is 'Main' and hence should be linked to the bank account
+#         account.linked_users.add(user)
+#         account.save()
 
-    elif privilege == "Sub":
-        allowance_account = Allowance.objects.create(
-            userMain = request.user,
-            userSub = user,
-            allowance = 0.00
-        )
-        allowance_account.save()
+#     elif privilege == "Sub":
+#         allowance_account = Allowance.objects.create(
+#             userMain = request.user,
+#             userSub = user,
+#             allowance = 0.00
+#         )
+#         allowance_account.save()
 
-    return user
+#     return user
 
-def login_view(request):
-	if request.method == "POST":
+# def login_view(request):
+# 	if request.method == "POST":
         
-		# scheduler.start() #Attempt to sign user in
-		username = request.POST["username"]
-		password = request.POST["password"]
-		user = authenticate(request, username=username, password=password)
+# 		# scheduler.start() #Attempt to sign user in
+# 		username = request.POST["username"]
+# 		password = request.POST["password"]
+# 		user = authenticate(request, username=username, password=password)
 
-        # Create a message payload with the notification data 
-        # response = messaging.send(message)
-        # response = messaging.send(message)
+#         # Create a message payload with the notification data 
+#         # response = messaging.send(message)
+#         # response = messaging.send(message)
 		
 
-		# Check if authentication successful
-		if user is not None:
-			login(request, user)
-			return render(request, "banking/index.html")
-		else:
-			return render(request, "banking/login.html", {
-				"message": "Invalid username and/or password."
-			})
-	else:
-		return render(request, "banking/login.html")
+# 		# Check if authentication successful
+# 		if user is not None:
+# 			login(request, user)
+# 			return render(request, "banking/index.html")
+# 		else:
+# 			return render(request, "banking/login.html", {
+# 				"message": "Invalid username and/or password."
+# 			})
+# 	else:
+# 		return render(request, "banking/login.html")
 
 @csrf_exempt
 
@@ -179,18 +176,18 @@ def logout_view(request):
 	return JsonResponse({'message':'successfully logged out'},status=200)
 	# return HttpResponseRedirect(reverse("index"))
 
-def family_member(request):
-    if request.method == "POST":
-        # user = register_user(request,"family")
-        user = registration_view_flutter(request,"family")
+# def family_member(request):
+#     if request.method == "POST":
+#         # user = register_user(request,"family")
+#         user = registration_view_flutter(request,"family")
 
-        return HttpResponseRedirect(reverse("family"))
-    else:
-        loggedInUser = User.objects.get(pk = request.user.id)
+#         return HttpResponseRedirect(reverse("family"))
+#     else:
+#         loggedInUser = User.objects.get(pk = request.user.id)
         
-        return render(request, "banking/family.html",{
-            "Privilege": loggedInUser.privilege
-        })
+#         return render(request, "banking/family.html",{
+#             "Privilege": loggedInUser.privilege
+#         })
 
 @csrf_exempt
 def pay_bills(request):
@@ -293,7 +290,10 @@ def login_view_flutter(request):
     if request.method == 'POST':
         # scheduler.start()
         
-
+        user_agent = request.META.get('HTTP_USER_AGENT')
+        if 'Mobile' in user_agent:
+            print(user_agent)
+            print("ya")
         data = json.loads(request.body)
         print(data)
         username = data.get('username')
@@ -303,7 +303,7 @@ def login_view_flutter(request):
         print(password)
         print(fcm_token)
         user = authenticate(request, username=username, password=password)
-        update_bal()
+        # update_bal()
         user1=[]
         if user is not None:
             login(request, user)
@@ -336,7 +336,7 @@ def login_view_flutter(request):
             return JsonResponse({'error': 'Invalid credentials'}, status=400)
 
 @csrf_exempt
-def registration_view_flutter(request,called_from):
+def registration_view_flutter(request):
     # if request.method == 'POST':
         data = json.loads(request.body)
         print("called view")
@@ -344,6 +344,7 @@ def registration_view_flutter(request,called_from):
         username = data.get('username')
         phone_number = data.get('phonenumber')
         dateOfBirth = data.get('dateofbirth')
+        userMain = data.get('user')
         alphabet = string.ascii_letters + string.digits
         password = ''.join(secrets.choice(alphabet) for i in range(12))
         print(password)
@@ -355,7 +356,7 @@ def registration_view_flutter(request,called_from):
 
         # The message to send
         message = client.messages.create(
-            body=str(password),
+            body="your password for your new banking account is: "+str(password),
             from_='+15076903504',  # Your Twilio phone number
             to=str(phone_number)     # The recipient's phone = number
         )
@@ -365,18 +366,13 @@ def registration_view_flutter(request,called_from):
             print("sms sent")
         else:
             print("sms not sent")
-        # privilege = "Main"
         privilege = data.get('privilege')
-        print(phone_number)
+        called_from = data.get('called_from')
         if called_from == "register":
             account = CreditCardDetail.objects.get(phoneNumber=phone_number)
-    
+            update_bal(phone_number)
         elif called_from == "family":
-            print(request.user.account.phoneNumber)
-            account = CreditCardDetail.objects.get(phoneNumber = request.user.account.phoneNumber)
-        else:
-            pass
-
+            account = CreditCardDetail.objects.get(phoneNumber = userMain[0]['Phone'])
         try:
             # Attempt to create new user
             user = User.objects.create_user(
@@ -388,6 +384,7 @@ def registration_view_flutter(request,called_from):
                 privilege = privilege
                 )
             user.save()
+
         except IntegrityError:
             """
             Handle possible error here, like:
@@ -396,6 +393,41 @@ def registration_view_flutter(request,called_from):
             # return render(request, "hotel/register.html", {
             #     "message": "Username already taken."
             # }) 
+        
+        if called_from == "family":
+            if privilege == "Sub":
+                allowance_account = Allowance.objects.create(
+                    userMain = User.objects.get(id = userMain[0]['UserId']),
+                    userSub = user,
+                    allowance = 0.00
+                )
+                allowance_account.save()
+            else:
+                account.linked_users.add(user)
+                account.save()
+        else:
+            pass
+
+        # try:
+        #     # Attempt to create new user
+        #     user = User.objects.create_user(
+        #         username, 
+        #         EMAIL, 
+        #         password,
+        #         account = account,
+        #         dateOfBirth = dateOfBirth,
+        #         privilege = privilege
+        #         )
+        #     user.save()
+
+        # except IntegrityError:
+        #     """
+        #     Handle possible error here, like:
+        #         Username already taken
+        #     """    
+        #     # return render(request, "hotel/register.html", {
+        #     #     "message": "Username already taken."
+        #     # }) 
         return user
 
 

@@ -1,11 +1,14 @@
 import 'dart:convert';
+import 'dart:io';
 // import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_sms/flutter_sms.dart';
 import 'package:modernlogintute/pages/allowance.dart';
 import 'package:modernlogintute/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:modernlogintute/pages/statement.dart';
+import 'package:modernlogintute/services/local_notifications.dart';
 // import 'package:firebase_messaging_web/firebase_messaging_web.dart';
 // import 'package:firebase_core_web/firebase_core_web.dart';
 // import 'package:flutter_web_plugins/flutter_web_plugins.dart';
@@ -171,39 +174,41 @@ class _HomepageState extends State<Homepage> {
 
   String notificationMsg = "waiting for notifications";
 
-  // @override
-  // void initState() {
-  //   // TODO: implement initState
-  //   super.initState();
-  //   LocalNotificationService.initilize();
+  @override
+  void initState() {
+    if (Platform.isAndroid || Platform.isIOS) {
+      // TODO: implement initState
+      super.initState();
+      LocalNotificationService.initilize();
 
-  //   // Terminated State
-  //   FirebaseMessaging.instance.getInitialMessage().then((event) {
-  //     if (event != null) {
-  //       setState(() {
-  //         notificationMsg =
-  //             "${event.notification!.title} ${event.notification!.body} I am coming from terminated state";
-  //       });
-  //     }
-  //   });
+      // Terminated State
+      FirebaseMessaging.instance.getInitialMessage().then((event) {
+        if (event != null) {
+          setState(() {
+            notificationMsg =
+                "${event.notification!.title} ${event.notification!.body} I am coming from terminated state";
+          });
+        }
+      });
 
-  //   // Foregrand State
-  //   FirebaseMessaging.onMessage.listen((event) {
-  //     LocalNotificationService.showNotificationOnForeground(event);
-  //     setState(() {
-  //       notificationMsg =
-  //           "${event.notification!.title} ${event.notification!.body} I am coming from foreground";
-  //     });
-  //   });
+      // Foregrand State
+      FirebaseMessaging.onMessage.listen((event) {
+        LocalNotificationService.showNotificationOnForeground(event);
+        setState(() {
+          notificationMsg =
+              "${event.notification!.title} ${event.notification!.body} I am coming from foreground";
+        });
+      });
 
-  //   // background State
-  //   FirebaseMessaging.onMessageOpenedApp.listen((event) {
-  //     setState(() {
-  //       notificationMsg =
-  //           "${event.notification!.title} ${event.notification!.body} I am coming from background";
-  //     });
-  //   });
-  // }
+      // background State
+      FirebaseMessaging.onMessageOpenedApp.listen((event) {
+        setState(() {
+          notificationMsg =
+              "${event.notification!.title} ${event.notification!.body} I am coming from background";
+        });
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -248,8 +253,8 @@ class _HomepageState extends State<Homepage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) =>
-                                    RegistrationPage(message: "family")),
+                                builder: (context) => RegistrationPage(
+                                    message: "family", user: widget.user)),
                           );
                         }
                       },
@@ -406,6 +411,12 @@ class _HomepageState extends State<Homepage> {
                     ElevatedButton(
                       onPressed: () {
                         if (widget.user[0]['Privilege'] == "Main") {
+                          // showDialog(
+                          //   context: context,
+                          //   builder: (BuildContext context) {
+                          //     return ChatScreen(user: widget.user);
+                          //   },
+                          // );
                           showDialog(
                             context: context,
                             builder: (context) {
