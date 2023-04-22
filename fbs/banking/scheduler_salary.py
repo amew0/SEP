@@ -5,9 +5,9 @@ from django_apscheduler.jobstores import DjangoJobStore
 from apscheduler.triggers.cron import CronTrigger
 
 from .models import *
-from . import tasks
-scheduler = BackgroundScheduler()
-scheduler.add_jobstore(DjangoJobStore(), 'default')
+# from . import scheduler_bill
+scheduler_salary = BackgroundScheduler()
+scheduler_salary.add_jobstore(DjangoJobStore(), 'default')
 
 def update_bank_balance(phone):
     # Retrieve all users from the database
@@ -18,10 +18,8 @@ def update_bank_balance(phone):
     print("did it")
     print(datetime.now())
 
-# scheduler.add_job(tasks, 'cron', month='*', day='1')
-# scheduler.add_job(update_bank_balance, 'interval', minutes=5)#, args=[user_id])
 def update_bal(phone):
-    scheduler.add_job(update_bank_balance, CronTrigger(day=28,hour=10,minute=00), args=[phone])
+    scheduler_salary.add_job(update_bank_balance, CronTrigger(day=28,hour=10,minute=00), args=[phone])
     print("schedule started now")
-    scheduler.start()
+    scheduler_salary.start()
     # scheduler.shutdown()

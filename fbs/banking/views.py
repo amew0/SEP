@@ -20,10 +20,11 @@ from django.views.decorators.csrf import csrf_exempt
 # from rest_framework_simplejwt.tokens import RefreshToken
 import secrets
 from django.db.models import Sum
-from banking import scheduler
-from banking.scheduler import update_bal
+from banking import scheduler_salary
+from banking.scheduler_bill import pay_bill
+from banking.scheduler_debit import pay_debit
+from banking.scheduler_salary import update_bal
 from banking.allowance_schedule import schedule_allowance
-from banking.reminder import schedule_reminder
 from twilio.rest import Client
 import firebase_admin
 # from pyfcm import FCMNotification
@@ -193,29 +194,19 @@ def logout_view(request):
 def pay_bills(request):
     if request.method == "POST":
         data = json.loads(request.body)
-        print("its here")
         billAmount = data.get("bill_amount")
+        billAmount = int(billAmount)
         billType = data.get("bill_name")
         billDescription = data.get("bill_description")
         billMonthly = data.get("bill_scheduled_monthly")
         date = data.get("date")
+        date_time = datetime.strptime(date, '%d/%m/%y %H:%M:%S')
+        date = date_time.strftime("%Y-%m-%d")
         user = data.get("user")
         account = CreditCardDetail.objects.get(phoneNumber=user[0]['Phone'])
-        print(user)
-        # billAmount = request.POST["bill_amount"]
-        # billType = request.POST["bill_name"]
-        # billDescription = request.POST["bill_description"]
-        
-        # This should be implemented later
-        # billMonthly = request.POST.get("bill_scheduled_monthly")
-        # print(billScheduled) billScheduled is "Yes" from the value I set.
-        # billMonthly = True if request.POST.get("bill_scheduled_monthly") else False
-        billMonthly = True if data.get("bill_scheduled_monthly") else False
-
         
         bill = Bill.objects.create(
             accountNumBill=account,
-            # accountNumBill=request.user.account,
             billType=billType,
             billDescription=billDescription,
             billAmount=billAmount,
@@ -223,41 +214,41 @@ def pay_bills(request):
             date=date
         )
         bill.save()
-        stat=" paid bill, " + str(billType)+", "+billDescription+", an amount "+billAmount+" AED. "
-        Statement=statement.objects.create(
-            userId=int(user[0]['UserId']),
-            statements=stat
-        )
-        Statement.save()
-        print(billAmount)
-        return JsonResponse({'message': 'bill added successfully'}, safe=False, status=200)
-        # return HttpResponseRedirect(reverse("index"))
+        if(account.balance>=billAmount):
+            account.balance -= billAmount
+            msg = "successfully added bill"
+            stat=" paid bill, " + str(billType)+", "+billDescription+", an amount of "+str(billAmount)+" AED. "
+            Statement=statement.objects.create(
+                userId=int(user[0]['UserId']),
+                statements=stat
+            )
+            Statement.save()
+            account.save()
+            if(billMonthly):
+                pay_bill(int(user[0]['UserId']),date_time,user[0]['Phone'],billAmount,stat)
+        else:
+            msg = "you do not have enough balance to pay"
+        return JsonResponse({'message': msg}, safe=False, status=200)
 
     else:
-        return JsonResponse({"bills":BILLS,
-        "max_amount": CreditCardDetail.objects.get(phoneNumber=json.loads(request.body).get("user")[0]['Phone']).balance}, safe=False, status=400)
+        return JsonResponse({'error' : "error"}, safe=False, status=400)
 
-        # return render(request, "banking/pay_bills.html",{
-        # "bills":BILLS,
-        # "max_amount": request.user.linked_accounts.all()[0].balance
-        # })
 
 @csrf_exempt
 def add_debits(request):
     if request.method == "POST":
         data = json.loads(request.body)
-        print("its here")
         DebitAmount = data.get("debit_amount")
+        DebitAmount = int(DebitAmount)
         DebitName = data.get("debit_name")
         DebitInstallmentMonthly = data.get("debit_installment")
         DebitFinalDate = data.get("debit_final_date")
+        date_time = datetime.now()
+        # date_time = date_time.strftime('%d/%m/%y %H:%M:%S')
+        # date_time = datetime.strptime(date_time, '%d/%m/%y %H:%M:%S')
         user = data.get("user")
         account = CreditCardDetail.objects.get(phoneNumber=user[0]['Phone'])
-        print(user)
-       
-        billMonthly = True if data.get("bill_scheduled_monthly") else False
-
-        
+    
         debit = Debit.objects.create(
             accountNumDebit=account,
             DebitName=DebitName,
@@ -270,7 +261,8 @@ def add_debits(request):
         stat="Added Debit, "+ str(DebitName)+ ", of amount "+ str(DebitAmount)+" AED. "
         Statement=statement.objects.create(userId=user[0]['UserId'],statements=stat)
         Statement.save()
-        schedule_reminder(user_id=user[0]['UserId'], reminder_text="Take out the trash")
+        pay_debit(int(user[0]['UserId']),date_time,user[0]['Phone'],DebitAmount,stat,DebitInstallmentMonthly)
+        # schedule_reminder(user_id=user[0]['UserId'], reminder_text="Take out the trash")
 
         print(DebitAmount)
         return JsonResponse({'message': 'debit added successfully'}, safe=False, status=200)

@@ -54,17 +54,11 @@ class _MyBillPopupState extends State<MyBillPopup> {
     final headers = {'Content-Type': 'application/json'};
     final body = json.encode(form.toJson());
     final response = await http.post(url, headers: headers, body: body);
-    // final user=0;
     if (response.statusCode == 200) {
-      // Successful login
       print("successfully added bill");
-      final user = json.decode(response.body)[0];
-      // Save the token to local storage or global state
     } else {
-      // Failed login
       throw Exception('Failed to add bill');
     }
-    // return user;
   }
 
   @override
@@ -147,7 +141,7 @@ class _MyBillPopupState extends State<MyBillPopup> {
                     bill_description: bill_description.text.trim(),
                     bill_scheduled_monthly: _isChecked,
                     user: widget.user,
-                    date: DateFormat('yyyy-MM-dd').format(date));
+                    date: DateFormat('dd/MM/yy hh:mm:ss').format(date));
               } else {
                 form = billForm(
                     bill_name: bill_name.text.trim(),

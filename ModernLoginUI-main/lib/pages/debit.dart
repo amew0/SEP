@@ -152,7 +152,8 @@ class _MydebitPopupState extends State<MydebitPopup> {
                   debit_name: debit_name.text.trim(),
                   debit_amount: debit_amount.text.trim(),
                   debit_installment: debit_installment.text.trim(),
-                  debit_final_date: DateFormat.yMMMEd().format(_selectedDate),
+                  debit_final_date:
+                      DateFormat('dd/MM/yy hh:mm:ss').format(_selectedDate),
                   user: widget.user);
               await debit(form);
               // Do something with the form data, e.g. submit to server
