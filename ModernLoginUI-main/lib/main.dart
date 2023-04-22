@@ -5,6 +5,7 @@ import 'pages/login_page.dart';
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:logging/logging.dart';
 
 Future<void> backroundHandler(RemoteMessage message) async {
   print(" This is message from the background");

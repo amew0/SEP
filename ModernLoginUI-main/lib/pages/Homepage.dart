@@ -59,7 +59,7 @@ class _HomepageState extends State<Homepage> {
     final body = json.encode(form.toJson());
     final response = await http.post(url, headers: headers, body: body);
     if (response.statusCode == 200) {
-      // Successful login
+      // Successful NFC payment
       print("successful");
       // print(json.decode(response.body)[0]);
     } else {
@@ -309,43 +309,31 @@ class _HomepageState extends State<Homepage> {
                     ),
                     TextButton(
                       onPressed: () async {
-                        // String message = "This is a test message!";
-                        // print(message);
-                        // List<String> recipents = ["00971503437768"];
-
-                        // String _result = await sendSMS(
-                        //         message: message,
-                        //         recipients: recipents,
-                        //         sendDirect: true)
-                        //     .catchError((onError) {
-                        //   print(onError);
-                        // });
-                        // print(_result);
-
-                        // Check availability
-                        bool isAvailable =
-                            await NfcManager.instance.isAvailable();
-                        print("in");
-                        print(isAvailable);
-                        // Start Session
-                        NfcManager.instance.startSession(
-                          // print("hey")
-                          onDiscovered: (NfcTag tag) async {
-                            // await
-                            await nfc_handle(widget.user);
-                            if (tag != null) {
-                              print("found");
-                              // Ndef ndef = await tag.readNdef();
-                              // NdefMessage message = ndef.cachedMessage;
-                            } else
-                              print("not found");
-                            NfcManager.instance.stopSession();
-                            // Do something with an NfcTag instance.
-                          },
-                        );
-                        // Stop Session
-                        // NfcManager.instance.stopSession();
-                        print("out");
+                        if (Platform.isAndroid || Platform.isIOS) {
+                          // Check availability
+                          bool isAvailable =
+                              await NfcManager.instance.isAvailable();
+                          print("in");
+                          print(isAvailable);
+                          // Start Session
+                          NfcManager.instance.startSession(
+                            // print("hey")
+                            onDiscovered: (NfcTag tag) async {
+                              // await
+                              await nfc_handle(widget.user);
+                              if (tag != null) {
+                                print("found");
+                                // Ndef ndef = await tag.readNdef();
+                                // NdefMessage message = ndef.cachedMessage;
+                              } else
+                                print("not found");
+                              NfcManager.instance.stopSession();
+                              // Do something with an NfcTag instance.
+                            },
+                          );
+                          // Stop Session
+                          // NfcManager.instance.stopSession();
+                        }
                       },
                       child: Text("NFC"),
                     ),

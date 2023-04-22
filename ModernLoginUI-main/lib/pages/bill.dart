@@ -57,7 +57,26 @@ class _MyBillPopupState extends State<MyBillPopup> {
     if (response.statusCode == 200) {
       print("successfully added bill");
     } else {
-      throw Exception('Failed to add bill');
+      print('Failed to send bill');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Bill not sent'),
+            content: Text('Please check the bill form.'),
+            actions: [
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+
+      // throw Exception('Failed to add bill');
     }
   }
 
@@ -90,6 +109,11 @@ class _MyBillPopupState extends State<MyBillPopup> {
                 if (value!.isEmpty) {
                   return 'Please enter bill amount';
                 }
+                final floatValue = double.tryParse(value);
+                if (floatValue == null) {
+                  return 'Please enter a valid floating-point number';
+                }
+                return null;
                 return null;
               },
               // onSaved: (value) {

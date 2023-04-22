@@ -10,24 +10,24 @@ from django_apscheduler.jobstores import DjangoJobStore
 scheduler_allowance = BackgroundScheduler()
 scheduler_allowance.add_jobstore(DjangoJobStore(), 'default')
 
-def add_allowance(sub, amount):
-    allowance = Allowance.objects.get(userMain=sub)
-    allowance.allowance+=amount
-    allowance.save()
-    print("added allowance")
-    # print(datetime.now())
-def schedule_allowance(sub, amount, date):
-    # Create a scheduler instance
-    # scheduler_allowance = BackgroundScheduler()
-    # scheduler_allowance.add_jobstore(DjangoJobStore(), 'default')
-    # Define the job that will run the reminder function
+def add_allowance(sub,main_phone, amount, statSub, statMain):
+    if(CreditCardDetail.objects.get(phoneNumber = main_phone).balance > amount):
+        allowance = Allowance.objects.get(userSub=sub)
+        allowance.allowance+=amount
+        
+        print("added allowance")
+        StatementSub=statement.objects.create(userId=sub,statements=statSub)
+        StatementMain=statement.objects.create(userId=allowance.userMain,statements=statMain)
+        StatementSub.save()
+        StatementMain.save()
+        allowance.save()
+def schedule_allowance(sub,main_phone, amount, date, statSub, statMain):
     scheduler_allowance.add_job(
         add_allowance,
-        CronTrigger(hour=date.hour, minute=(date.minute), second=date.second),
-        args=[sub, amount]
-        # id=f'reminder-{sub}'
+        CronTrigger(day = date.day , hour=date.hour, minute=date.minute),
+        args=[sub,main_phone, amount, statSub, statMain]
     )
-    # print("successfully started schedule")
     # Start the scheduler
+    print("scheduler_allowance started")
     scheduler_allowance.start()
     

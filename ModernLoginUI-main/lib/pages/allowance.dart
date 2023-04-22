@@ -159,7 +159,7 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
                   amount: amount.text.trim(),
                   instant: _isChecked,
                   user: widget.user,
-                  date: DateFormat('yy/MM/dd HH:mm:ss').format(DateTime.now()));
+                  date: DateFormat('dd/MM/yy hh:mm:ss').format(DateTime.now()));
               // date: DateFormat('yyyy-MM-dd').format(date));
 
               await Allowance(form);

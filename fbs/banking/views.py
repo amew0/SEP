@@ -194,14 +194,14 @@ def logout_view(request):
 def pay_bills(request):
     if request.method == "POST":
         data = json.loads(request.body)
-        billAmount = data.get("bill_amount")
-        billAmount = int(billAmount)
+        billAmount = float(data.get("bill_amount"))
         billType = data.get("bill_name")
         billDescription = data.get("bill_description")
         billMonthly = data.get("bill_scheduled_monthly")
-        date = data.get("date")
-        date_time = datetime.strptime(date, '%d/%m/%y %H:%M:%S')
-        date = date_time.strftime("%Y-%m-%d")
+        date = None
+        if billMonthly:
+            date_time = datetime.strptime(date, '%d/%m/%y %H:%M:%S')
+            date = date_time.strftime("%Y-%m-%d")
         user = data.get("user")
         account = CreditCardDetail.objects.get(phoneNumber=user[0]['Phone'])
         
@@ -215,6 +215,8 @@ def pay_bills(request):
         )
         bill.save()
         if(account.balance>=billAmount):
+            print(account.balance)
+            print(billAmount)
             account.balance -= billAmount
             msg = "successfully added bill"
             stat=" paid bill, " + str(billType)+", "+billDescription+", an amount of "+str(billAmount)+" AED. "
@@ -244,8 +246,7 @@ def add_debits(request):
         DebitInstallmentMonthly = data.get("debit_installment")
         DebitFinalDate = data.get("debit_final_date")
         date_time = datetime.now()
-        # date_time = date_time.strftime('%d/%m/%y %H:%M:%S')
-        # date_time = datetime.strptime(date_time, '%d/%m/%y %H:%M:%S')
+        
         user = data.get("user")
         account = CreditCardDetail.objects.get(phoneNumber=user[0]['Phone'])
     
@@ -459,38 +460,24 @@ def allowance_api(request):
         amount = data.get('amount') # username
         date = data.get('date') # yy-mm-dd-hh-mm-ss
         instant = data.get('instant')
+        user = data.get('user')
         # 2023-03-28-07-25-17
-        date_formatted = datetime.strptime(date, '%y/%m/%d %H:%M:%S')
-        print(type(amount))
-        print(date_formatted)
-        print(date_formatted.hour)
-        print("its here")
-        allowance = Allowance.objects.get(userMain=userMain)
+        date_formatted = datetime.strptime(date, '%d/%m/%y %H:%M:%S')
+        subId = User.objects.get(username=userSub)
+        allowance = Allowance.objects.get(userSub=subId.id)
         
-        if(instant):
+        if(instant & CreditCardDetail.objects.get(phoneNumber = user[0]['phone']).balance>int(amount)):
             allowance.allowance+=int(amount)
         allowance.dateTime=date_formatted
         allowance.save()
-        stat=+" Sent an allowance of "+ str(amount)+ " AED to " + str(userSub)
-        Statement=statement.objects.create(userId=userMain,statements=stat)
-        Statement.save()
-        # update_bal()
-        # scheduler.start()
-        schedule_allowance(userMain, int(amount), date_formatted)
-        # schedule a job every month
-
-        # # Create Allowance object
-        # allowance = Allowance.objects.create(
-        #     userMain = User.objects.get(pk=userMain),
-        #     userSub = User.objects.get(username=userSub),
-        #     amount = amount
-        #     # date = data.get('date') # yy-mm-dd-hh-mm-ss
-        # )
-
-
-
-
-
+        statSub=" received an allowance of "+ str(amount)+ " AED from Main "
+        statMain=" Sent an allowance of "+ str(amount)+ " AED to " + str(userSub)
+        StatementSub=statement.objects.create(userId=subId.id,statements=statSub)
+        StatementSub.save()
+        StatementMain=statement.objects.create(userId=userMain,statements=statMain)
+        StatementMain.save()
+        schedule_allowance(subId.id,user[0]['phone'], int(amount), date_formatted, statSub, statMain)
+        
         return JsonResponse({"message": "Success"}, safe=False, status=200)
     else:
 
@@ -549,7 +536,7 @@ def nfc(request):
             msg="not enough balance"
         acc.save()
     else:
-        allowance_account = Allowance.objects.get(userSub=user[0]['Username'])
+        allowance_account = Allowance.objects.get(userSub=user[0]['UserId'])
         if(allowance_account.allowance>=20):
             allowance_account.allowance = allowance_account.allowance - 20
             stat=" Paid through NFC an amount of 20 AED"
