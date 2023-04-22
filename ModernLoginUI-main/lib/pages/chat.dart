@@ -1,6 +1,18 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:io';
+import 'package:logging/logging.dart';
+
+var logger = Logger("Our Logger");
+
+class userForm {
+  List user;
+  userForm({required this.user});
+  Map<String, dynamic> toJson() => {
+        'user': user,
+      };
+}
 
 class ChatScreen extends StatefulWidget {
   @override
@@ -17,9 +29,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
   final String _apiUrl = 'https://api.openai.com/v1/chat/completions';
 
-  final String _apiKey = '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';
+  final String? _apiKey = Platform.environment['OPENAI_API_KEY'];
 
   Future<String> _getResponse(String prompt) async {
+    if (_apiKey == null) {
+      // OpenApiKey not set
+      logger.warning("OpenApiKey not set");
+    }
     var headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $_apiKey',
@@ -35,7 +51,6 @@ class _ChatScreenState extends State<ChatScreen> {
     var response =
         await http.post(Uri.parse(_apiUrl), headers: headers, body: body);
     var data = jsonDecode(response.body);
-    print(data);
     return data['choices'][0]['message']['content'];
   }
 
@@ -59,24 +74,47 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollToBottom();
   }
 
-  void _handleSystemPrompt(String sysPrompt) async {
+  void _handleSystemPrompt(String sysPrompt, String safeNsalary) async {
+    setState(() {
+      _messages.add({'role': 'system', 'content': safeNsalary});
+    });
     setState(() {
       _messages.add({'role': 'system', 'content': sysPrompt});
     });
   }
 
+  // Get [safe] and [salary] from the database
+  Future<dynamic> _retrieveSafeSalary(user) async {
+    final url = Uri.parse('http://127.0.0.1:8000/chatbot');
+    final headers = {'Content-Type': 'application/json'};
+
+    final user_ = userForm(
+      user: user,
+    );
+
+    final body = json.encode(user_.toJson());
+
+    final response = await http.post(url, headers: headers, body: body);
+    String safeNsalary;
+    if (response.statusCode == 200) {
+      safeNsalary = json.decode(response.body);
+      logger.info(safeNsalary);
+    } else {
+      throw Exception('Failed to send');
+    }
+    return safeNsalary;
+  }
+
   String sysPrompt = """
       You are an intelligent assistant and will be used in a family banking platform. Typically users will ask you content related to managing their financial position.
       If the query is not financial question make sure to let them know that you are not designed for that in a professional manner. Yet, if if it is a conversation starter like 'how are you?' go ahead interact with them.
-      Your main two tasks are the following (in addition to the above potential prompts) 1. If the user asks 'how much is it safe to spend?' or a question that semantically looks like that say '[safe] dirham' in a financial advisor tone.
-      2. if the user asks 'what is the next salary release day' or a question semantically similar to that reply with '[salary] dirham when the salary is released'
-      Make your respones short and to the point, and stricly not more than 20 words.
-      [safe] and [salary] will be provided to you later. If they, [safe] and [salary], are not provided to you yet, reply with I can not process your request right now, in a polite manner.
+      Your main task is the following (in addition to the above potential prompts) 
+      If the user asks 'how much is it safe to spend?' or a question that semantically looks like inform them the above prompt of the amount safe to spend now and on the 28th after the salary is released.
+      Make your respones short and to the point, and strictly not more than 20 words / tokens.
+      If the values are not provided to you yet, reply with I can not process your request right now, in a polite manner.
       """;
-  Widget _buildTextComposer() {
-    // Send system prompt here
-    _handleSystemPrompt(sysPrompt);
 
+  Widget _buildTextComposer() {
     return IconTheme(
       data: IconThemeData(color: Theme.of(context).accentColor),
       child: Container(
@@ -96,13 +134,12 @@ class _ChatScreenState extends State<ChatScreen> {
               child: IconButton(
                   icon: const Icon(Icons.send),
                   onPressed: () {
+                    _retrieveSafeSalary(widget.user)
+                        .then((value) => _handleSystemPrompt(sysPrompt, value));
                     if (_textController.text.isNotEmpty) {
                       _handleSubmitted(_textController.text);
                     }
-                  }
-                  // ? () => _handleSubmitted(_textController.text)
-                  // : null,
-                  ),
+                  }),
             ),
           ],
         ),
@@ -112,29 +149,32 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Chatbot Assistant'),
-      ),
-      body: Column(
+    return Dialog(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              'Chatbot Assistant',
+              style: Theme.of(context).textTheme.headline6,
+            ),
+          ),
           Flexible(
             child: ListView.builder(
-              controller: _scrollController,
               padding: const EdgeInsets.all(8.0),
+              // reverse: true,
+              controller: _scrollController,
+              itemCount: _messages.length,
               itemBuilder: (_, int index) => _messages[index]['role'] == 'user'
                   ? _buildUserMessage(_messages[index]['content']!)
                   : _messages[index]['role'] == 'assistant'
                       ? _buildAssistantMessage(_messages[index]['content']!)
                       : const SizedBox.shrink(),
-              itemCount: _messages.length,
             ),
           ),
           const Divider(height: 1.0),
-          Container(
-            decoration: BoxDecoration(color: Theme.of(context).cardColor),
-            child: _buildTextComposer(),
-          ),
+          _buildTextComposer(),
         ],
       ),
     );

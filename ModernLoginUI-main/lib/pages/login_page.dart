@@ -16,6 +16,8 @@ import 'package:nfc_manager/nfc_manager.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+import 'package:flutter/cupertino.dart';
+
 // import 'package:permission_handler/permission_handler.dart';
 
 // Future<void> requestNotificationPermission() async {
@@ -93,14 +95,27 @@ class Loginpage extends State<LoginPage> {
       print("successfully logged in");
       // print(json.decode(response.body)[0]);
       user = json.decode(response.body)[0];
-      // print(user.runtimeType);
-      // await storeToken(user[1]);
-      // print(json.decode(response.body)['token']);
-      // print(user.username);
-      // Save the token to local storage or global state
     } else {
       // Failed login
-      throw Exception('Failed to login');
+      // throw Exception('Failed to login');
+      print('Failed to login');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Failed to login'),
+            content: Text('Please check your credentials and try again.'),
+            actions: [
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
     }
     print(user);
     return user;
@@ -232,11 +247,14 @@ class Loginpage extends State<LoginPage> {
                     token: fcm_token,
                   );
                   dynamic user = await login(form);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => Homepage(user: user)),
-                  );
+                  if (user != null) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Homepage(user: user)),
+                    );
+                  }
+                  ;
                 },
                 child: Text('Login'),
                 style: ButtonStyle(

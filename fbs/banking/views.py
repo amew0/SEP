@@ -520,13 +520,15 @@ def chatbot(request):
         print(current_debits)
         safe_spend = float(current_balance) - (current_bills+ current_debits)
         
-        message = "You are safe to spend "+ str(safe_spend) + " and after the 28th, you can spend " + str(safe_spend+7000)
+        message = f'''Amount safe to spend is {str(safe_spend)}. After the 28th of this month, including your salary the amount safe to spend will be {str(safe_spend+7000)}.'''
         print(message)
+        
     else:
         message = "this is only for Main users"
     
 
         # current_debits = Debit.objects.filter(accountNumDebit='0000-0000-0000-0000').aggregate(Sum('DebitAmount'))['amount__debit']
+    
     return JsonResponse(message, safe=False, status=200)
 
 @csrf_exempt
