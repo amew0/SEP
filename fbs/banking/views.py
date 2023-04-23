@@ -29,7 +29,7 @@ from banking.allowance_schedule import schedule_allowance
 from twilio.rest import Client
 import firebase_admin
 # from pyfcm import FCMNotification
-
+from django.db.models import Q
 from firebase_admin import credentials, messaging
 # from django.contrib.auth.password_validation import make_random_password
 import requests
@@ -310,34 +310,33 @@ def login_view_flutter(request):
             # Get the date two days from now
             today = date.today()
             two_days_ahead = today + timedelta(days=2)
-
+            print(two_days_ahead.day)
             # Filter the allowances list to include only those with userSub
             # whose date of birth is two days ahead of today
             birthdays = []
             for allowance in allowances:
                 user_sub = allowance.userSub
                 dob = user_sub.dateOfBirth
-                if dob == two_days_ahead:
+                print(dob.month)
+                if dob.day == two_days_ahead.day & dob.month == two_days_ahead.month:
                     birthdays.append(dob)
-
-            # The birthdays list should now contain all the dates of birth
+            print(birthdays)
+            # The birthdays list should contain all the dates of birth
             # that are two days ahead for the given user's sub-users
 
+            if len(birthdays) !=0:
+                # Construct a message payload to send to the FCM token
+                message = messaging.Message(
+                    data={
+                        'title': 'django',
+                        'body': string(birthdays),
+                    },
+                    token=fcm_token,
+                )
 
-
-
-            # Construct a message payload to send to the FCM token
-            # message = messaging.Message(
-            #     data={
-            #         'title': 'django',
-            #         'body': 'hello from django',
-            #     },
-            #     token=fcm_token,
-            # )
-
-            # # Send the message to the FCM token
-            # response = messaging.send(message)
-            # print('Successfully sent message:', response)
+                # Send the message to the FCM token
+                response = messaging.send(message)
+                print('Successfully sent message:', response)
             #send notification for birthday voucher here
             # if(user['Privilege']=='Main'):
             #     birthdays = 
@@ -458,14 +457,21 @@ def registration_view_flutter(request):
 def get_statement(request):
 
     data = json.loads(request.body)
+    all_statements=[]
     user=data.get('user')
     if user[0]['Privilege'] == "Main":
-        stats = statement.objects.get(userId=user[0]['UserId']).statements
+        # stats = statement.objects.get(userId=user[0]['UserId'])
         # queryset = statement.objects.filter(userId=user[0]['UserId']).values()
-        # result_str = json.dumps(list(stats))
-        print(stats)
-        # print(result_str)
-        return JsonResponse([stats], safe=False, status=200)
+        queryset = statement.objects.filter(Q(userId=user[0]['UserId'])).values_list('statements', flat=True)
+        # result_str = json.dumps(list(queryset))
+        result_str = list(queryset)
+
+        # statements_list = list(queryset)
+        # for stat in stats:
+        #     print(stat.statements)
+        #     all_statements.append(stat.statements)
+        print(result_str)
+        return JsonResponse([result_str], safe=False, status=200)
 
     else:
         bills = Bill.objects.filter(billUser=request.user)

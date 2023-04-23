@@ -44,6 +44,10 @@ class _HomepageState extends State<Homepage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _msg = TextEditingController();
+  String notificationMsg = "waiting for notifications";
+  late double _balance = 0;
+
+  // double _balance = double.parse(widget.user[0]["Balance"]);
 
   bool _isLoading = false;
   late List<dynamic> itemList = [];
@@ -83,6 +87,7 @@ class _HomepageState extends State<Homepage> {
       statement = json.decode(response.body);
       print(statement);
       print("successfully sent Get Statement POST");
+
       // final token = json.decode(response.body)['token'];
       // Save the token to local storage or global state
     } else {
@@ -121,15 +126,14 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
-  String notificationMsg = "waiting for notifications";
-
   @override
   void initState() {
     if (Platform.isAndroid || Platform.isIOS) {
       // TODO: implement initState
       super.initState();
       LocalNotificationService.initilize();
-
+      _balance = double.parse(widget.user[0]["Balance"]);
+      print(_balance);
       // Terminated State
       FirebaseMessaging.instance.getInitialMessage().then((event) {
         if (event != null) {
@@ -161,6 +165,10 @@ class _HomepageState extends State<Homepage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_balance == 0) {
+      _balance = double.parse(widget.user[0]["Balance"]);
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Homepage'),
@@ -175,7 +183,8 @@ class _HomepageState extends State<Homepage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      widget.user[0]["Balance"],
+                      // widget.user[0]["Balance"],
+                      _balance.toString(),
                       style: TextStyle(
                         color: Colors.grey[700],
                         fontSize: 16,
@@ -220,14 +229,18 @@ class _HomepageState extends State<Homepage> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () {
+                      onPressed: () async {
                         if (widget.user[0]['Privilege'] == "Main") {
-                          showDialog(
+                          double result = await showDialog(
                             context: context,
                             builder: (BuildContext context) {
                               return MyBillPopup(user: widget.user);
                             },
                           );
+                          print(result);
+                          setState(() {
+                            _balance = _balance - result;
+                          });
                         }
                       },
                       child: Text(
@@ -271,23 +284,27 @@ class _HomepageState extends State<Homepage> {
                             TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
                       ),
                     ),
+                    // TextButton(
+                    //   onPressed: () {},
+                    //   child: Text(
+                    //     'Pay',
+                    //     style:
+                    //         TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
+                    //   ),
+                    // ),
                     TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        'Pay',
-                        style:
-                            TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
+                      onPressed: () async {
                         if (widget.user[0]['Privilege'] == "Main") {
-                          showDialog(
+                          double result = await showDialog(
                             context: context,
                             builder: (BuildContext context) {
                               return MyallowancePopup(user: widget.user);
                             },
                           );
+
+                          setState(() {
+                            _balance = _balance - result;
+                          });
                         }
                       },
                       child: Text(
@@ -299,12 +316,13 @@ class _HomepageState extends State<Homepage> {
                     TextButton(
                       onPressed: () async {
                         List<dynamic> stat = await statement(widget.user);
+
                         itemList.add(stat);
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
                             return StatementPopup(
-                                user: widget.user, itemList: itemList);
+                                user: widget.user, itemList: itemList[0][0]);
                           },
                         );
                       },
@@ -328,6 +346,9 @@ class _HomepageState extends State<Homepage> {
                             onDiscovered: (NfcTag tag) async {
                               // await
                               await nfc_handle(widget.user);
+                              setState(() {
+                                _balance = _balance - 20.0;
+                              });
                               if (tag != null) {
                                 print("found");
                                 // Ndef ndef = await tag.readNdef();

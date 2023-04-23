@@ -7,8 +7,8 @@ from django.conf import settings
 from .models import *
 from django_apscheduler.jobstores import DjangoJobStore
 
-scheduler_allowance = BackgroundScheduler()
-scheduler_allowance.add_jobstore(DjangoJobStore(), 'default')
+# scheduler_allowance = BackgroundScheduler()
+# scheduler_allowance.add_jobstore(DjangoJobStore(), 'default')
 
 def add_allowance(sub,main_phone, amount, statSub, statMain):
     if(CreditCardDetail.objects.get(phoneNumber = main_phone).balance > amount):
@@ -22,6 +22,8 @@ def add_allowance(sub,main_phone, amount, statSub, statMain):
         StatementMain.save()
         allowance.save()
 def schedule_allowance(sub,main_phone, amount, date, statSub, statMain):
+    scheduler_allowance = BackgroundScheduler()
+    scheduler_allowance.add_jobstore(DjangoJobStore(), 'default')
     scheduler_allowance.add_job(
         add_allowance,
         CronTrigger(day = date.day , hour=date.hour, minute=date.minute),

@@ -39,19 +39,33 @@ class StatementPopup extends StatelessWidget {
             height: 200,
             child: ListView.builder(
               itemCount: itemList.length,
-              itemBuilder: (context, index) {
-                print("here");
-                // print(itemList[0]['statements']);
-                final element = itemList[index];
-                return ListTile(
-                  title: Text(element.toString()),
+              itemBuilder: (BuildContext context, int index) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(itemList[index].toString()),
+                      ),
+                    ],
+                  ),
                 );
-                // itemBuilder: (BuildContext context, int index) {
-                //   return ListTile(
-                //     title: Text(itemList[index]),
-                //   );
               },
             ),
+            // ListView.builder(
+            //   itemCount: itemList.length,
+            //   itemBuilder: (context, index) {
+            //     // print(itemList[0]['statements']);
+            //     final element = itemList[index];
+            //     return ListTile(
+            //       title: Text(element.toString()),
+            //     );
+            //     // itemBuilder: (BuildContext context, int index) {
+            //     //   return ListTile(
+            //     //     title: Text(itemList[index]),
+            //     //   );
+            //   },
+            // ),
           ),
         ],
       ),

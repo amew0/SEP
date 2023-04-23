@@ -48,7 +48,7 @@ class _MyBillPopupState extends State<MyBillPopup> {
   TextEditingController bill_name = TextEditingController();
   TextEditingController bill_amount = TextEditingController();
   bool _isChecked = false;
-
+  double AmountBill = 0.0;
   Future<bool> bill(billForm form) async {
     final url = Uri.parse(
         'http://127.0.0.1:8000/pay_bills'); // insert correct API endpoint
@@ -56,6 +56,7 @@ class _MyBillPopupState extends State<MyBillPopup> {
     final body = json.encode(form.toJson());
     final response = await http.post(url, headers: headers, body: body);
     if (response.statusCode == 200) {
+      AmountBill = double.parse(form.bill_amount);
       print("successfully added bill");
       // await Future.delayed(const Duration(seconds: 3));
       if (context.mounted) {
@@ -160,7 +161,7 @@ class _MyBillPopupState extends State<MyBillPopup> {
       actions: <Widget>[
         ElevatedButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(context, AmountBill);
           },
           child: const Text('Cancel'),
         ),
@@ -199,9 +200,9 @@ class _MyBillPopupState extends State<MyBillPopup> {
               bool successful = await bill(form);
               // Do something with the form data, e.g. submit to server
               await Future.delayed(const Duration(seconds: 1));
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(AmountBill);
               if (successful) {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(AmountBill);
               }
               // Navigator.pop(context);
             }

@@ -47,11 +47,7 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
   String? userSub = "";
   TextEditingController amount = TextEditingController();
   TextEditingController instant = TextEditingController();
-
-  // TextEditingController allowance_name = TextEditingController();
-  // TextEditingController allowance_amount = TextEditingController();
-  // TextEditingController allowance_description = TextEditingController();
-
+  double AmountAllowance = 0;
   bool _isChecked = false;
 
   Future<void> Allowance(AllowanceForm form) async {
@@ -65,7 +61,7 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
     if (response.statusCode == 200) {
       // Successful login
       print("successfully added allowance");
-
+      AmountAllowance = double.parse(form.amount);
       final user = json.decode(response.body)[0];
       // Save the token to local storage or global state
     } else {
@@ -142,7 +138,7 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
       actions: <Widget>[
         ElevatedButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(context, AmountAllowance);
           },
           child: Text('Cancel'),
         ),
@@ -159,12 +155,12 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
                   amount: amount.text.trim(),
                   instant: _isChecked,
                   user: widget.user,
-                  date: DateFormat('dd/MM/yy hh:mm:ss').format(DateTime.now()));
+                  date: DateFormat('yy/MM/dd HH:mm:ss').format(DateTime.now()));
               // date: DateFormat('yyyy-MM-dd').format(date));
 
               await Allowance(form);
               // Do something with the form data, e.g. submit to server
-              Navigator.pop(context);
+              Navigator.pop(context, AmountAllowance);
             }
           },
           child: const Text('Submit'),
