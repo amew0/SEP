@@ -120,20 +120,6 @@ class _MydebitPopupState extends State<MydebitPopup> {
                 _selectedDate = value;
               },
             ),
-            // Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            //   Checkbox(
-            //     value: _isChecked,
-            //     onChanged: (bool? value) {
-            //       setState(() {
-            //         _isChecked = value ?? false;
-            //       });
-            //     },
-            //   ),
-            //   Text(
-            //     'make this payment monthly recurring',
-            //     style: TextStyle(color: Colors.grey[700], fontSize: 10),
-            //   ),
-            // ]),
           ],
         ),
       ),

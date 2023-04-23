@@ -7,7 +7,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.urls import reverse
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
@@ -302,6 +302,30 @@ def login_view_flutter(request):
             login(request, user)
             user=user.serialize()
             print(user["Privilege"])
+
+            # check for possible birthdays of family members
+            # Get all Allowance objects where userMain is the given User object
+            allowances = Allowance.objects.filter(userMain=user['UserId'])
+
+            # Get the date two days from now
+            today = date.today()
+            two_days_ahead = today + timedelta(days=2)
+
+            # Filter the allowances list to include only those with userSub
+            # whose date of birth is two days ahead of today
+            birthdays = []
+            for allowance in allowances:
+                user_sub = allowance.userSub
+                dob = user_sub.dateOfBirth
+                if dob.date() == two_days_ahead:
+                    birthdays.append(dob)
+
+            # The birthdays list should now contain all the dates of birth
+            # that are two days ahead for the given user's sub-users
+
+
+
+
             # Construct a message payload to send to the FCM token
             # message = messaging.Message(
             #     data={
