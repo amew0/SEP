@@ -163,7 +163,7 @@ class _HomepageState extends State<Homepage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Homepage'),
+        title: const Text('Homepage'),
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
@@ -174,6 +174,13 @@ class _HomepageState extends State<Homepage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    Text(
+                      widget.user[0]["Balance"],
+                      style: TextStyle(
+                        color: Colors.grey[700],
+                        fontSize: 16,
+                      ),
+                    ),
                     Text(
                       notificationMsg,
                       style: TextStyle(

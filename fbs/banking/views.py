@@ -1,5 +1,6 @@
 import json
 import string
+import decimal
 from tokenize import generate_tokens
 from webbrowser import BackgroundBrowser
 from django.shortcuts import render
@@ -194,15 +195,16 @@ def logout_view(request):
 def pay_bills(request):
     if request.method == "POST":
         data = json.loads(request.body)
-        billAmount = float(data.get("bill_amount"))
+        billAmount = decimal.Decimal(data.get("bill_amount"))
         billType = data.get("bill_name")
         billDescription = data.get("bill_description")
         billMonthly = data.get("bill_scheduled_monthly")
-        date = None
-        if billMonthly:
-            date_time = datetime.strptime(date, '%d/%m/%y %H:%M:%S')
-            date = date_time.strftime("%Y-%m-%d")
+        date = data.get("date")
+        # if billMonthly:
+        date_time = datetime.strptime(date, '%d/%m/%y %H:%M:%S')
+        date = date_time.strftime("%Y-%m-%d")
         user = data.get("user")
+        
         account = CreditCardDetail.objects.get(phoneNumber=user[0]['Phone'])
         
         bill = Bill.objects.create(
@@ -215,8 +217,6 @@ def pay_bills(request):
         )
         bill.save()
         if(account.balance>=billAmount):
-            print(account.balance)
-            print(billAmount)
             account.balance -= billAmount
             msg = "successfully added bill"
             stat=" paid bill, " + str(billType)+", "+billDescription+", an amount of "+str(billAmount)+" AED. "
@@ -317,7 +317,7 @@ def login_view_flutter(request):
             for allowance in allowances:
                 user_sub = allowance.userSub
                 dob = user_sub.dateOfBirth
-                if dob.date() == two_days_ahead:
+                if dob == two_days_ahead:
                     birthdays.append(dob)
 
             # The birthdays list should now contain all the dates of birth

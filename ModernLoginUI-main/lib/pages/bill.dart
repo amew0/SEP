@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -48,7 +49,7 @@ class _MyBillPopupState extends State<MyBillPopup> {
   TextEditingController bill_amount = TextEditingController();
   bool _isChecked = false;
 
-  Future<void> bill(billForm form) async {
+  Future<bool> bill(billForm form) async {
     final url = Uri.parse(
         'http://127.0.0.1:8000/pay_bills'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
@@ -56,28 +57,40 @@ class _MyBillPopupState extends State<MyBillPopup> {
     final response = await http.post(url, headers: headers, body: body);
     if (response.statusCode == 200) {
       print("successfully added bill");
+      // await Future.delayed(const Duration(seconds: 3));
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) =>
+              buildAlertDialog(context, "Bill created successfully."),
+        );
+      }
     } else {
       print('Failed to send bill');
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Bill not sent'),
-            content: Text('Please check the bill form.'),
-            actions: [
-              TextButton(
-                child: Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-
-      // throw Exception('Failed to add bill');
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => buildAlertDialog(
+              context, "Bill couldn't be created. Please try again."),
+        );
+      }
     }
+    return response.statusCode == 200;
+  }
+
+  Widget buildAlertDialog(BuildContext context, String response) {
+    return AlertDialog(
+      title: const Text('Bill info'),
+      content: Text(response),
+      // actions: [
+      //   TextButton(
+      //     child: const Text('OK'),
+      //     onPressed: () {
+      //       Navigator.of(context).pop();
+      //     },
+      //   ),
+      // ],
+    );
   }
 
   @override
@@ -105,15 +118,15 @@ class _MyBillPopupState extends State<MyBillPopup> {
             TextFormField(
               controller: bill_amount,
               decoration: InputDecoration(labelText: 'Bill amount'),
+              keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.allow(RegExp(
+                    r'^\d{1,9}$|(?=^.{1,9}$)^\d+\.\d{0,2}$')), // only allow numbers and dot
+              ],
               validator: (value) {
                 if (value!.isEmpty) {
                   return 'Please enter bill amount';
                 }
-                final floatValue = double.tryParse(value);
-                if (floatValue == null) {
-                  return 'Please enter a valid floating-point number';
-                }
-                return null;
                 return null;
               },
               // onSaved: (value) {
@@ -123,7 +136,7 @@ class _MyBillPopupState extends State<MyBillPopup> {
             TextField(
               controller: bill_description,
               maxLines: 10,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 border: OutlineInputBorder(),
               ),
             ),
@@ -149,7 +162,7 @@ class _MyBillPopupState extends State<MyBillPopup> {
           onPressed: () {
             Navigator.pop(context);
           },
-          child: Text('Cancel'),
+          child: const Text('Cancel'),
         ),
         ElevatedButton(
           onPressed: () async {
@@ -157,30 +170,43 @@ class _MyBillPopupState extends State<MyBillPopup> {
             final form;
             if (_formKey.currentState!.validate()) {
               _formKey.currentState!.save();
-              if (_isChecked == true) {
-                date = DateTime.now();
-                form = billForm(
-                    bill_name: bill_name.text.trim(),
-                    bill_amount: bill_amount.text.trim(),
-                    bill_description: bill_description.text.trim(),
-                    bill_scheduled_monthly: _isChecked,
-                    user: widget.user,
-                    date: DateFormat('dd/MM/yy hh:mm:ss').format(date));
-              } else {
-                form = billForm(
-                    bill_name: bill_name.text.trim(),
-                    bill_amount: bill_amount.text.trim(),
-                    bill_description: bill_description.text.trim(),
-                    bill_scheduled_monthly: _isChecked,
-                    user: widget.user,
-                    date: "none");
-              }
-              await bill(form);
+              date = DateTime.now();
+              form = billForm(
+                  bill_name: bill_name.text.trim(),
+                  bill_amount: bill_amount.text.trim(),
+                  bill_description: bill_description.text.trim(),
+                  bill_scheduled_monthly: _isChecked,
+                  user: widget.user,
+                  date: DateFormat('dd/MM/yy hh:mm:ss').format(date));
+              // if (_isChecked == true) {
+              //   date = DateTime.now();
+              //   form = billForm(
+              //       bill_name: bill_name.text.trim(),
+              //       bill_amount: bill_amount.text.trim(),
+              //       bill_description: bill_description.text.trim(),
+              //       bill_scheduled_monthly: _isChecked,
+              //       user: widget.user,
+              //       date: DateFormat('dd/MM/yy hh:mm:ss').format(date));
+              // } else {
+              //   form = billForm(
+              //       bill_name: bill_name.text.trim(),
+              //       bill_amount: bill_amount.text.trim(),
+              //       bill_description: bill_description.text.trim(),
+              //       bill_scheduled_monthly: _isChecked,
+              //       user: widget.user,
+              //       date: "none");
+              // }
+              bool successful = await bill(form);
               // Do something with the form data, e.g. submit to server
-              Navigator.pop(context);
+              await Future.delayed(const Duration(seconds: 1));
+              Navigator.of(context).pop();
+              if (successful) {
+                Navigator.of(context).pop();
+              }
+              // Navigator.pop(context);
             }
           },
-          child: Text('Submit'),
+          child: const Text('Submit'),
         ),
       ],
     );

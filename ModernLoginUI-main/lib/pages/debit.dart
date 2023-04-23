@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:date_field/date_field.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -64,7 +65,7 @@ class _MydebitPopupState extends State<MydebitPopup> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('debit form'),
+      title: const Text('Debit form'),
       content: Form(
         key: _formKey,
         child: Column(
@@ -72,7 +73,7 @@ class _MydebitPopupState extends State<MydebitPopup> {
           children: <Widget>[
             TextFormField(
               controller: debit_name,
-              decoration: InputDecoration(labelText: 'debit Name'),
+              decoration: const InputDecoration(labelText: 'Debit Name'),
               validator: (value) {
                 if (value!.isEmpty) {
                   return 'Please enter debit name';
@@ -85,7 +86,12 @@ class _MydebitPopupState extends State<MydebitPopup> {
             ),
             TextFormField(
               controller: debit_amount,
-              decoration: InputDecoration(labelText: 'debit amount'),
+              decoration: const InputDecoration(labelText: 'Debit amount'),
+              keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.allow(RegExp(
+                    r'^\d{1,9}$|(?=^.{1,9}$)^\d+\.\d{0,2}$')), // only allow numbers and dot
+              ],
               validator: (value) {
                 if (value!.isEmpty) {
                   return 'Please enter debit amount';
@@ -98,14 +104,14 @@ class _MydebitPopupState extends State<MydebitPopup> {
             ),
             TextFormField(
               controller: debit_installment,
-              decoration: InputDecoration(
-                labelText: 'debit monthly installment',
+              decoration: const InputDecoration(
+                labelText: 'Debit monthly installment',
               ),
             ),
             DateTimeFormField(
               // controller: _dateOfBirthController,
               decoration: const InputDecoration(
-                labelText: 'final date',
+                labelText: 'Final date',
                 hintStyle: TextStyle(color: Color.fromARGB(115, 211, 19, 19)),
                 errorStyle: TextStyle(color: Colors.redAccent),
                 border: OutlineInputBorder(),
@@ -128,7 +134,7 @@ class _MydebitPopupState extends State<MydebitPopup> {
           onPressed: () {
             Navigator.pop(context);
           },
-          child: Text('Cancel'),
+          child: const Text('Cancel'),
         ),
         ElevatedButton(
           onPressed: () async {
