@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -50,7 +51,7 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
   double AmountAllowance = 0;
   bool _isChecked = false;
 
-  Future<void> Allowance(AllowanceForm form) async {
+  Future<bool> Allowance(AllowanceForm form) async {
     final url = Uri.parse(
         'http://127.0.0.1:8000/allowance_api'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
@@ -60,15 +61,46 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
     // final user=0;
     if (response.statusCode == 200) {
       // Successful login
-      print("successfully added allowance");
+      print("Allowance added successfully.");
       AmountAllowance = double.parse(form.amount);
       final user = json.decode(response.body)[0];
       // Save the token to local storage or global state
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) =>
+              buildAlertDialog(context, "Allowance added successfully."),
+        );
+      }
     } else {
       // Failed login
-      throw Exception('Failed to add allowance');
+      // throw Exception('Failed to add allowance');
+      print("Bill couldn't be created. Please try again.");
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => buildAlertDialog(
+              context, "Allowance couldn't be added. Please try again."),
+        );
+      }
     }
     // return user;
+    return response.statusCode == 200;
+  }
+
+  Widget buildAlertDialog(BuildContext context, String response) {
+    return AlertDialog(
+      title: const Text('Allowance info'),
+      content: Text(response),
+      // actions: [
+      //   TextButton(
+      //     child: const Text('OK'),
+      //     onPressed: () {
+      //       Navigator.of(context).pop();
+      //     },
+      //   ),
+      // ],
+    );
   }
 
   @override
@@ -108,6 +140,11 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
             TextFormField(
               controller: amount,
               decoration: const InputDecoration(labelText: 'Amount'),
+              keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.allow(RegExp(
+                    r'^\d{1,9}$|(?=^.{1,9}$)^\d+\.\d{0,2}$')), // only allow numbers and dot
+              ],
               validator: (value) {
                 if (value!.isEmpty) {
                   return 'Please enter allowance amount';
@@ -158,9 +195,13 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
                   date: DateFormat('yy/MM/dd HH:mm:ss').format(DateTime.now()));
               // date: DateFormat('yyyy-MM-dd').format(date));
 
-              await Allowance(form);
+              bool successful = await Allowance(form);
               // Do something with the form data, e.g. submit to server
-              Navigator.pop(context, AmountAllowance);
+              await Future.delayed(const Duration(seconds: 1));
+              Navigator.of(context).pop(AmountAllowance);
+              if (successful) {
+                Navigator.of(context).pop(AmountAllowance);
+              }
             }
           },
           child: const Text('Submit'),

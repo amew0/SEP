@@ -203,4 +203,4 @@ class statement (models.Model):
         blank=True
     )
     def __str__(self):
-        return f"{self.userId}"
+        return f"{self.userId}-{self.statements}"

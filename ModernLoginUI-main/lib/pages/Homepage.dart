@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 // import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_sms/flutter_sms.dart';
+// import 'package:flutter_sms/flutter_sms.dart';
 import 'package:modernlogintute/pages/allowance.dart';
 import 'package:modernlogintute/pages/login_page.dart';
 import 'package:flutter/material.dart';
@@ -21,11 +21,11 @@ import 'bill.dart';
 import 'debit.dart';
 import 'chat.dart';
 
-class userForm {
+class UserForm {
   List user;
   // String password;
 
-  userForm({required this.user});
+  UserForm({required this.user});
 
   Map<String, dynamic> toJson() => {
         'user': user,
@@ -54,7 +54,7 @@ class _HomepageState extends State<Homepage> {
 
   Future<dynamic> nfc_handle(user) async {
     print("nfc_handle function called");
-    final form = userForm(
+    final form = UserForm(
       user: user,
     );
     final url =
@@ -72,7 +72,7 @@ class _HomepageState extends State<Homepage> {
   }
 
   Future<dynamic> statement(user) async {
-    final form = userForm(
+    final form = UserForm(
       user: user,
     );
     final url = Uri.parse(
@@ -102,7 +102,7 @@ class _HomepageState extends State<Homepage> {
     // List user = [];
 
     print(user.runtimeType);
-    final form = userForm(
+    final form = UserForm(
       user: user,
     );
     final url = Uri.parse(

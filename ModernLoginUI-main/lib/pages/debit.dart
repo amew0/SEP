@@ -78,7 +78,7 @@ class _MydebitPopupState extends State<MydebitPopup> {
 
   Widget buildAlertDialog(BuildContext context, String response) {
     return AlertDialog(
-      title: const Text('Bill info'),
+      title: const Text('Debit info'),
       content: Text(response),
       // actions: [
       //   TextButton(

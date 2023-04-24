@@ -486,7 +486,7 @@ def allowance_api(request):
 
         userMain = data.get('userMain') # id
         userSub = data.get('userSub') # username
-        amount = data.get('amount') # username
+        amount = decimal.Decimal(data.get('amount')) # username
         date = data.get('date') # yy-mm-dd-hh-mm-ss
         instant = data.get('instant')
         user = data.get('user')
@@ -495,17 +495,17 @@ def allowance_api(request):
         subId = User.objects.get(username=userSub)
         allowance = Allowance.objects.get(userSub=subId.id)
         
-        if(instant & CreditCardDetail.objects.get(phoneNumber = user[0]['phone']).balance>int(amount)):
-            allowance.allowance+=int(amount)
+        if(instant & (CreditCardDetail.objects.get(phoneNumber = user[0]['Phone']).balance > amount)):
+            allowance.allowance += amount
         allowance.dateTime=date_formatted
         allowance.save()
-        statSub=" received an allowance of "+ str(amount)+ " AED from Main "
+        statSub=" Received an allowance of "+ str(amount)+ " AED from Main "
         statMain=" Sent an allowance of "+ str(amount)+ " AED to " + str(userSub)
         StatementSub=statement.objects.create(userId=subId.id,statements=statSub)
         StatementSub.save()
         StatementMain=statement.objects.create(userId=userMain,statements=statMain)
         StatementMain.save()
-        schedule_allowance(subId.id,user[0]['phone'], int(amount), date_formatted, statSub, statMain)
+        schedule_allowance(subId.id,user[0]['Phone'], int(amount), date_formatted, statSub, statMain)
         
         return JsonResponse({"message": "Success"}, safe=False, status=200)
     else:
