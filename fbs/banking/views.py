@@ -240,16 +240,16 @@ def pay_bills(request):
 def add_debits(request):
     if request.method == "POST":
         data = json.loads(request.body)
-        DebitAmount = data.get("debit_amount")
-        DebitAmount = int(DebitAmount)
+        DebitAmount =  decimal.Decimal(data.get("debit_amount"))
         DebitName = data.get("debit_name")
-        DebitInstallmentMonthly = data.get("debit_installment")
+        DebitInstallmentMonthly = decimal.Decimal(data.get("debit_installment"))
         DebitFinalDate = data.get("debit_final_date")
         date_time = datetime.now()
         
         user = data.get("user")
         account = CreditCardDetail.objects.get(phoneNumber=user[0]['Phone'])
-    
+
+        # 
         debit = Debit.objects.create(
             accountNumDebit=account,
             DebitName=DebitName,
@@ -265,7 +265,6 @@ def add_debits(request):
         pay_debit(int(user[0]['UserId']),date_time,user[0]['Phone'],DebitAmount,stat,DebitInstallmentMonthly)
         # schedule_reminder(user_id=user[0]['UserId'], reminder_text="Take out the trash")
 
-        print(DebitAmount)
         return JsonResponse({'message': 'debit added successfully'}, safe=False, status=200)
 
     else:

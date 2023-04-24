@@ -42,9 +42,9 @@ class _MydebitPopupState extends State<MydebitPopup> {
   TextEditingController debit_installment = TextEditingController();
   TextEditingController debit_name = TextEditingController();
   TextEditingController debit_amount = TextEditingController();
-  late DateTime _selectedDate;
+  late DateTime? _selectedDate;
 
-  Future<void> debit(debitForm form) async {
+  Future<bool> debit(debitForm form) async {
     final url = Uri.parse(
         'http://127.0.0.1:8000/add_debits'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
@@ -53,17 +53,47 @@ class _MydebitPopupState extends State<MydebitPopup> {
     // final user=0;
     if (response.statusCode == 200) {
       // Successful debit
-      print("successfully added debit");
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) =>
+              buildAlertDialog(context, "Debit added successfully."),
+        );
+      }
       // final user = json.decode(response.body)[0];
       // Save the token to local storage or global state
     } else {
       // Failed debit
-      throw Exception('Failed to add debit');
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => buildAlertDialog(
+              context, "Debit couldn't be added. Please try again."),
+        );
+      }
+      // throw Exception('Failed to add debit');
     }
+    return response.statusCode == 200;
+  }
+
+  Widget buildAlertDialog(BuildContext context, String response) {
+    return AlertDialog(
+      title: const Text('Bill info'),
+      content: Text(response),
+      // actions: [
+      //   TextButton(
+      //     child: const Text('OK'),
+      //     onPressed: () {
+      //       Navigator.of(context).pop();
+      //     },
+      //   ),
+      // ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    bool isFinalDateEdittable = true;
     return AlertDialog(
       title: const Text('Debit form'),
       content: Form(
@@ -107,6 +137,29 @@ class _MydebitPopupState extends State<MydebitPopup> {
               decoration: const InputDecoration(
                 labelText: 'Debit monthly installment',
               ),
+              keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.allow(RegExp(
+                    r'^\d{1,9}$|(?=^.{1,9}$)^\d+\.\d{0,2}$')), // only allow numbers and dot
+              ],
+              validator: (value) {
+                if (value!.isNotEmpty) {
+                  double? amount = double.tryParse(debit_amount.text);
+                  double? installment = double.tryParse(value);
+                  if (installment! > amount!) {
+                    return "Installment can't be greater than Debit Amount";
+                  }
+                }
+                return null;
+              },
+              onChanged: (value) {
+                // This is not working for some reason
+                if (value.isNotEmpty) {
+                  setState(() {
+                    _selectedDate = null;
+                  });
+                }
+              },
             ),
             DateTimeFormField(
               // controller: _dateOfBirthController,
@@ -120,10 +173,22 @@ class _MydebitPopupState extends State<MydebitPopup> {
               ),
               mode: DateTimeFieldPickerMode.date,
               autovalidateMode: AutovalidateMode.always,
-              validator: (e) =>
-                  (e?.day ?? 0) == 1 ? 'Please not the first day' : null,
+              validator: (e) {
+                if (e != null &&
+                    e.isBefore(DateTime.now().add(Duration(days: 31)))) {
+                  return 'Please choose a date at least a month ahead from now';
+                }
+                return null;
+              },
               onDateSelected: (DateTime value) {
-                _selectedDate = value;
+                if (value.isBefore(DateTime.now().add(Duration(days: 31)))) {
+                  // Show an error message or take some other action
+                } else {
+                  setState(() {
+                    _selectedDate = value;
+                  });
+                  debit_installment.clear();
+                }
               },
             ),
           ],
@@ -140,16 +205,30 @@ class _MydebitPopupState extends State<MydebitPopup> {
           onPressed: () async {
             if (_formKey.currentState!.validate()) {
               _formKey.currentState!.save();
+              if (debit_installment.text.isEmpty) {
+                DateTime now = DateTime.now();
+                Duration? difference = _selectedDate?.difference(now);
+                int monthsDifference = (difference!.inDays / 30)
+                    .floor(); // round up the result to the nearest integer
+                debit_installment.text =
+                    (double.parse(debit_amount.text.trim()) / monthsDifference)
+                        .toString();
+              }
               final form = debitForm(
                   debit_name: debit_name.text.trim(),
                   debit_amount: debit_amount.text.trim(),
                   debit_installment: debit_installment.text.trim(),
                   debit_final_date:
-                      DateFormat('dd/MM/yy hh:mm:ss').format(_selectedDate),
+                      DateFormat('dd/MM/yy hh:mm:ss').format(_selectedDate!),
                   user: widget.user);
-              await debit(form);
+              bool successful = await debit(form);
               // Do something with the form data, e.g. submit to server
+              await Future.delayed(const Duration(seconds: 1));
               Navigator.pop(context);
+
+              if (successful) {
+                Navigator.pop(context);
+              }
             }
           },
           child: Text('Submit'),

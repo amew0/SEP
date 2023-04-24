@@ -67,7 +67,6 @@ class _MyBillPopupState extends State<MyBillPopup> {
         );
       }
     } else {
-      print('Failed to send bill');
       if (context.mounted) {
         showDialog(
           context: context,
