@@ -175,7 +175,7 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
       actions: <Widget>[
         ElevatedButton(
           onPressed: () {
-            Navigator.pop(context, AmountAllowance);
+            Navigator.pop(context, 0);
           },
           child: Text('Cancel'),
         ),

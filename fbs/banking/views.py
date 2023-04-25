@@ -1,6 +1,5 @@
 import json
 import string
-import decimal
 from tokenize import generate_tokens
 from webbrowser import BackgroundBrowser
 from django.shortcuts import render
@@ -14,22 +13,20 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.contrib.auth import authenticate, login
 from django.http import JsonResponse
-from django.http import HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
 # from rest_framework.authtoken.views import ObtainAuthToken
 # from rest_framework.response import Response
 # from rest_framework_simplejwt.tokens import RefreshToken
 import secrets
 from django.db.models import Sum
-from banking import scheduler_salary
-from banking.scheduler_bill import pay_bill
-from banking.scheduler_debit import pay_debit
-from banking.scheduler_salary import update_bal
+from banking import scheduler
+from banking.scheduler import update_bal
 from banking.allowance_schedule import schedule_allowance
+from banking.reminder import schedule_reminder
 from twilio.rest import Client
 import firebase_admin
 # from pyfcm import FCMNotification
-from django.db.models import Q
+
 from firebase_admin import credentials, messaging
 # from django.contrib.auth.password_validation import make_random_password
 import requests
@@ -60,7 +57,7 @@ from .models import *
 # const analytics = getAnalytics(app);
 
 
-cred = credentials.Certificate('sep-project-72f97-firebase-adminsdk-r2pjg-58123de2b9.json')
+cred = credentials.Certificate('C:\\Users\\admin\\Desktop\\sep project\SEP\\fbs\\sep-project-72f97-firebase-adminsdk-r2pjg-58123de2b9.json')
 firebase_admin.initialize_app(cred)
 
 # Create your views here.
@@ -78,93 +75,97 @@ EMAIL = "a@a.a"
 @csrf_exempt
 def register(request):
     if request.method == "POST":
-       
-        user = registration_view_flutter(request)
+        # user = register_user(request,"register")
+        print("its here")
+        # data = json.loads(request.body)
+        # # username = data.get('username')
+        # # phone_number = data.get('phoneNumber')
+        # print(request.body)
+        user = registration_view_flutter(request,"register")
         user1=[]
-        data = json.loads(request.body)
-        called_from = data.get('called_from')
-        if(called_from=="register"):
-            login(request, user)
-            user=user.serialize()
-            token = str(generate_tokens(user))
-            user1.append(user)
-            user1.append(token)
-            return JsonResponse([ user1], safe=False, status=200)
-        else:
-            return JsonResponse({'message':'successfully registered user'}, safe=False, status=200)
+        login(request, user)
+        user=user.serialize()
+        token = str(generate_tokens(user))
+        user1.append(user)
+        user1.append(token)
+        return JsonResponse([ user1], safe=False, status=200)
+
+        # return render(request, "banking/index.html")
     else:
         return JsonResponse({'error': 'Invalid credentials'}, safe=False, status=400)
 
-# def register_user(request,called_from):
-#     username = request.POST["username"]
-#     # fullname = request.POST["fullname"]
-#     phone_number = request.POST["phoneNumber"]
-#     dateOfBirth = request.POST["dateOfBirth"]
-#     privilege = request.POST.get("privilege")
+        # return render(request, "banking/register.html")
 
-#     if called_from == "register":
-#         account = CreditCardDetail.objects.get(phoneNumber=phone_number)
-#     elif called_from == "family":
-#         account = CreditCardDetail.objects.get(phoneNumber = request.user.account.phoneNumber)
+def register_user(request,called_from):
+    username = request.POST["username"]
+    # fullname = request.POST["fullname"]
+    phone_number = request.POST["phoneNumber"]
+    dateOfBirth = request.POST["dateOfBirth"]
+    privilege = request.POST.get("privilege")
 
-#     user = None
-#     try:
-#         # Attempt to create new user
-#         user = User.objects.create_user(username, EMAIL, PASSWORD, account = account,
-#             dateOfBirth = dateOfBirth,
-#             privilege = privilege
-#             )
-#         user.save()
+    if called_from == "register":
+        account = CreditCardDetail.objects.get(phoneNumber=phone_number)
+    elif called_from == "family":
+        account = CreditCardDetail.objects.get(phoneNumber = request.user.account.phoneNumber)
 
-#     except IntegrityError:
-#         """
-#         Handle possible error here, like:
-#             Username already taken
-#         """    
-#         return render(request, "banking/register.html", {
-#             "message": "Username already taken."
-#         })
+    user = None
+    try:
+        # Attempt to create new user
+        user = User.objects.create_user(username, EMAIL, PASSWORD, account = account,
+            dateOfBirth = dateOfBirth,
+            privilege = privilege
+            )
+        user.save()
+
+    except IntegrityError:
+        """
+        Handle possible error here, like:
+            Username already taken
+        """    
+        return render(request, "banking/register.html", {
+            "message": "Username already taken."
+        })
 
 
-#     if privilege == "Main":
+    if privilege == "Main":
         
-#         # User is 'Main' and hence should be linked to the bank account
-#         account.linked_users.add(user)
-#         account.save()
+        # User is 'Main' and hence should be linked to the bank account
+        account.linked_users.add(user)
+        account.save()
 
-#     elif privilege == "Sub":
-#         allowance_account = Allowance.objects.create(
-#             userMain = request.user,
-#             userSub = user,
-#             allowance = 0.00
-#         )
-#         allowance_account.save()
+    elif privilege == "Sub":
+        allowance_account = Allowance.objects.create(
+            userMain = request.user,
+            userSub = user,
+            allowance = 0.00
+        )
+        allowance_account.save()
 
-#     return user
+    return user
 
-# def login_view(request):
-# 	if request.method == "POST":
+def login_view(request):
+	if request.method == "POST":
         
-# 		# scheduler.start() #Attempt to sign user in
-# 		username = request.POST["username"]
-# 		password = request.POST["password"]
-# 		user = authenticate(request, username=username, password=password)
+		# scheduler.start() #Attempt to sign user in
+		username = request.POST["username"]
+		password = request.POST["password"]
+		user = authenticate(request, username=username, password=password)
 
-#         # Create a message payload with the notification data 
-#         # response = messaging.send(message)
-#         # response = messaging.send(message)
+        # Create a message payload with the notification data 
+        # response = messaging.send(message)
+        # response = messaging.send(message)
 		
 
-# 		# Check if authentication successful
-# 		if user is not None:
-# 			login(request, user)
-# 			return render(request, "banking/index.html")
-# 		else:
-# 			return render(request, "banking/login.html", {
-# 				"message": "Invalid username and/or password."
-# 			})
-# 	else:
-# 		return render(request, "banking/login.html")
+		# Check if authentication successful
+		if user is not None:
+			login(request, user)
+			return render(request, "banking/index.html")
+		else:
+			return render(request, "banking/login.html", {
+				"message": "Invalid username and/or password."
+			})
+	else:
+		return render(request, "banking/login.html")
 
 @csrf_exempt
 
@@ -178,37 +179,46 @@ def logout_view(request):
 	return JsonResponse({'message':'successfully logged out'},status=200)
 	# return HttpResponseRedirect(reverse("index"))
 
-# def family_member(request):
-#     if request.method == "POST":
-#         # user = register_user(request,"family")
-#         user = registration_view_flutter(request,"family")
+def family_member(request):
+    if request.method == "POST":
+        # user = register_user(request,"family")
+        user = registration_view_flutter(request,"family")
 
-#         return HttpResponseRedirect(reverse("family"))
-#     else:
-#         loggedInUser = User.objects.get(pk = request.user.id)
+        return HttpResponseRedirect(reverse("family"))
+    else:
+        loggedInUser = User.objects.get(pk = request.user.id)
         
-#         return render(request, "banking/family.html",{
-#             "Privilege": loggedInUser.privilege
-#         })
+        return render(request, "banking/family.html",{
+            "Privilege": loggedInUser.privilege
+        })
 
 @csrf_exempt
 def pay_bills(request):
     if request.method == "POST":
         data = json.loads(request.body)
-        billAmount = decimal.Decimal(data.get("bill_amount"))
+        print("its here")
+        billAmount = data.get("bill_amount")
         billType = data.get("bill_name")
         billDescription = data.get("bill_description")
         billMonthly = data.get("bill_scheduled_monthly")
         date = data.get("date")
-        # if billMonthly:
-        date_time = datetime.strptime(date, '%d/%m/%y %H:%M:%S')
-        date = date_time.strftime("%Y-%m-%d")
         user = data.get("user")
-        
         account = CreditCardDetail.objects.get(phoneNumber=user[0]['Phone'])
+        print(user)
+        # billAmount = request.POST["bill_amount"]
+        # billType = request.POST["bill_name"]
+        # billDescription = request.POST["bill_description"]
+        
+        # This should be implemented later
+        # billMonthly = request.POST.get("bill_scheduled_monthly")
+        # print(billScheduled) billScheduled is "Yes" from the value I set.
+        # billMonthly = True if request.POST.get("bill_scheduled_monthly") else False
+        billMonthly = True if data.get("bill_scheduled_monthly") else False
+
         
         bill = Bill.objects.create(
             accountNumBill=account,
+            # accountNumBill=request.user.account,
             billType=billType,
             billDescription=billDescription,
             billAmount=billAmount,
@@ -216,40 +226,41 @@ def pay_bills(request):
             date=date
         )
         bill.save()
-        if(account.balance>=billAmount):
-            account.balance -= billAmount
-            msg = "successfully added bill"
-            stat=" paid bill, " + str(billType)+", "+billDescription+", an amount of "+str(billAmount)+" AED. "
-            Statement=statement.objects.create(
-                userId=int(user[0]['UserId']),
-                statements=stat
-            )
-            Statement.save()
-            account.save()
-            if(billMonthly):
-                pay_bill(int(user[0]['UserId']),date_time,user[0]['Phone'],billAmount,stat)
-        else:
-            msg = "you do not have enough balance to pay"
-        return JsonResponse({'message': msg}, safe=False, status=200)
+        stat=" paid bill, " + str(billType)+", "+billDescription+", an amount "+billAmount+" AED. "
+        Statement=statement.objects.create(
+            userId=int(user[0]['UserId']),
+            statements=stat
+        )
+        Statement.save()
+        print(billAmount)
+        return JsonResponse({'message': 'bill added successfully'}, safe=False, status=200)
+        # return HttpResponseRedirect(reverse("index"))
 
     else:
-        return JsonResponse({'error' : "error"}, safe=False, status=400)
+        return JsonResponse({"bills":BILLS,
+        "max_amount": CreditCardDetail.objects.get(phoneNumber=json.loads(request.body).get("user")[0]['Phone']).balance}, safe=False, status=400)
 
+        # return render(request, "banking/pay_bills.html",{
+        # "bills":BILLS,
+        # "max_amount": request.user.linked_accounts.all()[0].balance
+        # })
 
 @csrf_exempt
 def add_debits(request):
     if request.method == "POST":
         data = json.loads(request.body)
-        DebitAmount =  decimal.Decimal(data.get("debit_amount"))
+        print("its here")
+        DebitAmount = data.get("debit_amount")
         DebitName = data.get("debit_name")
-        DebitInstallmentMonthly = decimal.Decimal(data.get("debit_installment"))
+        DebitInstallmentMonthly = data.get("debit_installment")
         DebitFinalDate = data.get("debit_final_date")
-        date_time = datetime.now()
-        
         user = data.get("user")
         account = CreditCardDetail.objects.get(phoneNumber=user[0]['Phone'])
+        print(user)
+       
+        billMonthly = True if data.get("bill_scheduled_monthly") else False
 
-        # 
+        
         debit = Debit.objects.create(
             accountNumDebit=account,
             DebitName=DebitName,
@@ -262,9 +273,9 @@ def add_debits(request):
         stat="Added Debit, "+ str(DebitName)+ ", of amount "+ str(DebitAmount)+" AED. "
         Statement=statement.objects.create(userId=user[0]['UserId'],statements=stat)
         Statement.save()
-        pay_debit(int(user[0]['UserId']),date_time,user[0]['Phone'],DebitAmount,stat,DebitInstallmentMonthly)
-        # schedule_reminder(user_id=user[0]['UserId'], reminder_text="Take out the trash")
+        schedule_reminder(user_id=user[0]['UserId'], reminder_text="Take out the trash")
 
+        print(DebitAmount)
         return JsonResponse({'message': 'debit added successfully'}, safe=False, status=200)
 
     else:
@@ -276,6 +287,8 @@ def credit_card_details(request):
     ccds = CreditCardDetail.objects.all()
     if request.method == "GET":
         return JsonResponse([ccd.serialize() for ccd in ccds], safe=False)
+
+
 
 @csrf_exempt
 def login_view_flutter(request):
@@ -323,13 +336,13 @@ def login_view_flutter(request):
             # The birthdays list should contain all the dates of birth
             # that are two days ahead for the given user's sub-users
 
-            if len(birthdays) !=0:
+            if len(birthdays) ==0:
                 # Construct a message payload to send to the FCM token
-                message = messaging.Message(
-                    data={
-                        'title': 'django',
-                        'body': string(birthdays),
-                    },
+                message = messaging.Message (
+                    notification=messaging.Notification(
+                        title = 'django',
+                        body ='string(birthdays)',
+                    ),
                     token=fcm_token,
                 )
 
@@ -350,8 +363,59 @@ def login_view_flutter(request):
         else:
             return JsonResponse({'error': 'Invalid credentials'}, status=400)
 
+
+
+
+
+# @csrf_exempt
+# def login_view_flutter(request):
+#     if request.method == 'POST':
+#         # scheduler.start()
+        
+
+#         data = json.loads(request.body)
+#         print(data)
+#         username = data.get('username')
+#         password = data.get('password')
+#         fcm_token = data.get('token')
+#         print(username)
+#         print(password)
+#         print(fcm_token)
+#         user = authenticate(request, username=username, password=password)
+#         update_bal()
+#         user1=[]
+#         if user is not None:
+#             login(request, user)
+#             user=user.serialize()
+#             print(user["Privilege"])
+#             # Construct a message payload to send to the FCM token
+#             # message = messaging.Message(
+#             #     data={
+#             #         'title': 'django',
+#             #         'body': 'hello from django',
+#             #     },
+#             #     token=fcm_token,
+#             # )
+
+#             # # Send the message to the FCM token
+#             # response = messaging.send(message)
+#             # print('Successfully sent message:', response)
+#             #send notification for birthday voucher here
+#             # if(user['Privilege']=='Main'):
+#             #     birthdays = 
+#             token = str(generate_tokens(user))
+#             # print(type(generator(token)))
+#             user1.append(user)
+#             user1.append(token)
+#             # return JsonResponse({'message': 'success'} , status=200)
+#             # return JsonResponse({'token': token}, status=200) #,{'token': token} ,[ user.serialize()]
+#             return JsonResponse([ user1], safe=False, status=200)
+
+#         else:
+#             return JsonResponse({'error': 'Invalid credentials'}, status=400)
+
 @csrf_exempt
-def registration_view_flutter(request):
+def registration_view_flutter(request,called_from):
     # if request.method == 'POST':
         data = json.loads(request.body)
         print("called view")
@@ -359,7 +423,6 @@ def registration_view_flutter(request):
         username = data.get('username')
         phone_number = data.get('phonenumber')
         dateOfBirth = data.get('dateofbirth')
-        userMain = data.get('user')
         alphabet = string.ascii_letters + string.digits
         password = ''.join(secrets.choice(alphabet) for i in range(12))
         print(password)
@@ -371,7 +434,7 @@ def registration_view_flutter(request):
 
         # The message to send
         message = client.messages.create(
-            body="your password for your new banking account is: "+str(password),
+            body=str(password),
             from_='+15076903504',  # Your Twilio phone number
             to=str(phone_number)     # The recipient's phone = number
         )
@@ -381,13 +444,18 @@ def registration_view_flutter(request):
             print("sms sent")
         else:
             print("sms not sent")
+        # privilege = "Main"
         privilege = data.get('privilege')
-        called_from = data.get('called_from')
+        print(phone_number)
         if called_from == "register":
             account = CreditCardDetail.objects.get(phoneNumber=phone_number)
-            update_bal(phone_number)
+    
         elif called_from == "family":
-            account = CreditCardDetail.objects.get(phoneNumber = userMain[0]['Phone'])
+            print(request.user.account.phoneNumber)
+            account = CreditCardDetail.objects.get(phoneNumber = request.user.account.phoneNumber)
+        else:
+            pass
+
         try:
             # Attempt to create new user
             user = User.objects.create_user(
@@ -399,7 +467,6 @@ def registration_view_flutter(request):
                 privilege = privilege
                 )
             user.save()
-
         except IntegrityError:
             """
             Handle possible error here, like:
@@ -408,41 +475,6 @@ def registration_view_flutter(request):
             # return render(request, "hotel/register.html", {
             #     "message": "Username already taken."
             # }) 
-        
-        if called_from == "family":
-            if privilege == "Sub":
-                allowance_account = Allowance.objects.create(
-                    userMain = User.objects.get(id = userMain[0]['UserId']),
-                    userSub = user,
-                    allowance = 0.00
-                )
-                allowance_account.save()
-            else:
-                account.linked_users.add(user)
-                account.save()
-        else:
-            pass
-
-        # try:
-        #     # Attempt to create new user
-        #     user = User.objects.create_user(
-        #         username, 
-        #         EMAIL, 
-        #         password,
-        #         account = account,
-        #         dateOfBirth = dateOfBirth,
-        #         privilege = privilege
-        #         )
-        #     user.save()
-
-        # except IntegrityError:
-        #     """
-        #     Handle possible error here, like:
-        #         Username already taken
-        #     """    
-        #     # return render(request, "hotel/register.html", {
-        #     #     "message": "Username already taken."
-        #     # }) 
         return user
 
 
@@ -456,21 +488,14 @@ def registration_view_flutter(request):
 def get_statement(request):
 
     data = json.loads(request.body)
-    all_statements=[]
     user=data.get('user')
     if user[0]['Privilege'] == "Main":
-        # stats = statement.objects.get(userId=user[0]['UserId'])
+        stats = statement.objects.get(userId=user[0]['UserId']).statements
         # queryset = statement.objects.filter(userId=user[0]['UserId']).values()
-        queryset = statement.objects.filter(Q(userId=user[0]['UserId'])).values_list('statements', flat=True)
-        # result_str = json.dumps(list(queryset))
-        result_str = list(queryset)
-
-        # statements_list = list(queryset)
-        # for stat in stats:
-        #     print(stat.statements)
-        #     all_statements.append(stat.statements)
-        print(result_str)
-        return JsonResponse([result_str], safe=False, status=200)
+        # result_str = json.dumps(list(stats))
+        print(stats)
+        # print(result_str)
+        return JsonResponse([stats], safe=False, status=200)
 
     else:
         bills = Bill.objects.filter(billUser=request.user)
@@ -486,27 +511,41 @@ def allowance_api(request):
 
         userMain = data.get('userMain') # id
         userSub = data.get('userSub') # username
-        amount = decimal.Decimal(data.get('amount')) # username
+        amount = data.get('amount') # username
         date = data.get('date') # yy-mm-dd-hh-mm-ss
         instant = data.get('instant')
-        user = data.get('user')
         # 2023-03-28-07-25-17
-        date_formatted = datetime.strptime(date, '%d/%m/%y %H:%M:%S')
-        subId = User.objects.get(username=userSub)
-        allowance = Allowance.objects.get(userSub=subId.id)
+        date_formatted = datetime.strptime(date, '%y/%m/%d %H:%M:%S')
+        print(type(amount))
+        print(date_formatted)
+        print(date_formatted.hour)
+        print("its here")
+        allowance = Allowance.objects.get(userMain=userMain)
         
-        if(instant & (CreditCardDetail.objects.get(phoneNumber = user[0]['Phone']).balance > amount)):
-            allowance.allowance += amount
+        if(instant):
+            allowance.allowance+=int(amount)
         allowance.dateTime=date_formatted
         allowance.save()
-        statSub=" Received an allowance of "+ str(amount)+ " AED from Main "
-        statMain=" Sent an allowance of "+ str(amount)+ " AED to " + str(userSub)
-        StatementSub=statement.objects.create(userId=subId.id,statements=statSub)
-        StatementSub.save()
-        StatementMain=statement.objects.create(userId=userMain,statements=statMain)
-        StatementMain.save()
-        schedule_allowance(subId.id,user[0]['Phone'], int(amount), date_formatted, statSub, statMain)
-        
+        stat=+" Sent an allowance of "+ str(amount)+ " AED to " + str(userSub)
+        Statement=statement.objects.create(userId=userMain,statements=stat)
+        Statement.save()
+        # update_bal()
+        # scheduler.start()
+        schedule_allowance(userMain, int(amount), date_formatted)
+        # schedule a job every month
+
+        # # Create Allowance object
+        # allowance = Allowance.objects.create(
+        #     userMain = User.objects.get(pk=userMain),
+        #     userSub = User.objects.get(username=userSub),
+        #     amount = amount
+        #     # date = data.get('date') # yy-mm-dd-hh-mm-ss
+        # )
+
+
+
+
+
         return JsonResponse({"message": "Success"}, safe=False, status=200)
     else:
 
@@ -536,15 +575,13 @@ def chatbot(request):
         print(current_debits)
         safe_spend = float(current_balance) - (current_bills+ current_debits)
         
-        message = f'''Amount safe to spend is {str(safe_spend)}. After the 28th of this month, including your salary the amount safe to spend will be {str(safe_spend+7000)}.'''
+        message = "You are safe to spend "+ str(safe_spend) + " and after the 28th, you can spend " + str(safe_spend+7000)
         print(message)
-        
     else:
         message = "this is only for Main users"
     
 
         # current_debits = Debit.objects.filter(accountNumDebit='0000-0000-0000-0000').aggregate(Sum('DebitAmount'))['amount__debit']
-    
     return JsonResponse(message, safe=False, status=200)
 
 @csrf_exempt
@@ -565,7 +602,7 @@ def nfc(request):
             msg="not enough balance"
         acc.save()
     else:
-        allowance_account = Allowance.objects.get(userSub=user[0]['UserId'])
+        allowance_account = Allowance.objects.get(userSub=user[0]['Username'])
         if(allowance_account.allowance>=20):
             allowance_account.allowance = allowance_account.allowance - 20
             stat=" Paid through NFC an amount of 20 AED"

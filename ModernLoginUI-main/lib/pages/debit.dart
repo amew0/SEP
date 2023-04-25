@@ -95,145 +95,176 @@ class _MydebitPopupState extends State<MydebitPopup> {
   Widget build(BuildContext context) {
     bool isFinalDateEdittable = true;
     return AlertDialog(
-      title: const Text('Debit form'),
-      content: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            TextFormField(
-              controller: debit_name,
-              decoration: const InputDecoration(labelText: 'Debit Name'),
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Please enter debit name';
-                }
-                return null;
-              },
-              // onSaved: (value) {
-              //   debit_name = value;
-              // },
-            ),
-            TextFormField(
-              controller: debit_amount,
-              decoration: const InputDecoration(labelText: 'Debit amount'),
-              keyboardType: TextInputType.number,
-              inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.allow(RegExp(
-                    r'^\d{1,9}$|(?=^.{1,9}$)^\d+\.\d{0,2}$')), // only allow numbers and dot
-              ],
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Please enter debit amount';
-                }
-                return null;
-              },
-              // onSaved: (value) {
-              //   debit_amount = value;
-              // },
-            ),
-            TextFormField(
-              controller: debit_installment,
-              decoration: const InputDecoration(
-                labelText: 'Debit monthly installment',
-              ),
-              keyboardType: TextInputType.number,
-              inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.allow(RegExp(
-                    r'^\d{1,9}$|(?=^.{1,9}$)^\d+\.\d{0,2}$')), // only allow numbers and dot
-              ],
-              validator: (value) {
-                if (value!.isNotEmpty) {
-                  double? amount = double.tryParse(debit_amount.text);
-                  double? installment = double.tryParse(value);
-                  if (installment! > amount!) {
-                    return "Installment can't be greater than Debit Amount";
-                  }
-                }
-                return null;
-              },
-              onChanged: (value) {
-                // This is not working for some reason
-                if (value.isNotEmpty) {
-                  setState(() {
-                    _selectedDate = null;
-                  });
-                }
-              },
-            ),
-            DateTimeFormField(
-              // controller: _dateOfBirthController,
-              decoration: const InputDecoration(
-                labelText: 'Final date',
-                hintStyle: TextStyle(color: Color.fromARGB(115, 211, 19, 19)),
-                errorStyle: TextStyle(color: Colors.redAccent),
-                border: OutlineInputBorder(),
-                suffixIcon: Icon(Icons.event_note),
-                // labelText: 'Only time',
-              ),
-              mode: DateTimeFieldPickerMode.date,
-              autovalidateMode: AutovalidateMode.always,
-              validator: (e) {
-                if (e != null &&
-                    e.isBefore(DateTime.now().add(Duration(days: 31)))) {
-                  return 'Please choose a date at least a month ahead from now';
-                }
-                return null;
-              },
-              onDateSelected: (DateTime value) {
-                if (value.isBefore(DateTime.now().add(Duration(days: 31)))) {
-                  // Show an error message or take some other action
-                } else {
-                  setState(() {
-                    _selectedDate = value;
-                  });
-                  debit_installment.clear();
-                }
-              },
-            ),
-          ],
-        ),
-      ),
-      actions: <Widget>[
-        ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: () async {
-            if (_formKey.currentState!.validate()) {
-              _formKey.currentState!.save();
-              if (debit_installment.text.isEmpty) {
-                DateTime now = DateTime.now();
-                Duration? difference = _selectedDate?.difference(now);
-                int monthsDifference = (difference!.inDays / 30)
-                    .floor(); // round up the result to the nearest integer
-                debit_installment.text =
-                    (double.parse(debit_amount.text.trim()) / monthsDifference)
-                        .toString();
-              }
-              final form = debitForm(
-                  debit_name: debit_name.text.trim(),
-                  debit_amount: debit_amount.text.trim(),
-                  debit_installment: debit_installment.text.trim(),
-                  debit_final_date:
-                      DateFormat('dd/MM/yy hh:mm:ss').format(_selectedDate!),
-                  user: widget.user);
-              bool successful = await debit(form);
-              // Do something with the form data, e.g. submit to server
-              await Future.delayed(const Duration(seconds: 1));
-              Navigator.pop(context);
+        title: const Text(
+          'Debit form',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Color.fromARGB(255, 0, 0, 0),
+            fontSize: 44,
 
-              if (successful) {
-                Navigator.pop(context);
-              }
-            }
-          },
-          child: Text('Submit'),
+            // fontWeight: FontWeight,
+          ),
         ),
-      ],
-    );
+        content: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextFormField(
+                controller: debit_name,
+                decoration: const InputDecoration(labelText: 'Debit Name'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter debit name';
+                  }
+                  return null;
+                },
+                // onSaved: (value) {
+                //   debit_name = value;
+                // },
+              ),
+              TextFormField(
+                controller: debit_amount,
+                decoration: const InputDecoration(
+                    enabledBorder: const OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: Color.fromARGB(255, 0, 0, 0)),
+                    ),
+                    labelText: 'Debit amount'),
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.allow(RegExp(
+                      r'^\d{1,9}$|(?=^.{1,9}$)^\d+\.\d{0,2}$')), // only allow numbers and dot
+                ],
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter debit amount';
+                  }
+                  return null;
+                },
+                // onSaved: (value) {
+                //   debit_amount = value;
+                // },
+              ),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: debit_installment,
+                decoration: const InputDecoration(
+                  enabledBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Color.fromARGB(255, 0, 0, 0)),
+                  ),
+                  labelText: 'Debit monthly installment',
+                ),
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.allow(RegExp(
+                      r'^\d{1,9}$|(?=^.{1,9}$)^\d+\.\d{0,2}$')), // only allow numbers and dot
+                ],
+                validator: (value) {
+                  if (value!.isNotEmpty) {
+                    double? amount = double.tryParse(debit_amount.text);
+                    double? installment = double.tryParse(value);
+                    if (installment! > amount!) {
+                      return "Installment can't be greater than Debit Amount";
+                    }
+                  }
+                  return null;
+                },
+                onChanged: (value) {
+                  // This is not working for some reason
+                  if (value.isNotEmpty) {
+                    setState(() {
+                      _selectedDate = null;
+                    });
+                  }
+                },
+              ),
+              const SizedBox(height: 10),
+              DateTimeFormField(
+                // controller: _dateOfBirthController,
+                decoration: const InputDecoration(
+                  labelText: 'Final date',
+                  hintStyle: TextStyle(color: Color.fromARGB(115, 211, 19, 19)),
+                  errorStyle: TextStyle(color: Colors.redAccent),
+                  border: OutlineInputBorder(),
+                  suffixIcon: Icon(Icons.event_note),
+                  // labelText: 'Only time',
+                ),
+                mode: DateTimeFieldPickerMode.date,
+                autovalidateMode: AutovalidateMode.always,
+                validator: (e) {
+                  if (e != null &&
+                      e.isBefore(DateTime.now().add(Duration(days: 31)))) {
+                    return 'Please choose a date at least a month ahead from now';
+                  }
+                  return null;
+                },
+                onDateSelected: (DateTime value) {
+                  if (value.isBefore(DateTime.now().add(Duration(days: 31)))) {
+                    // Show an error message or take some other action
+                  } else {
+                    setState(() {
+                      _selectedDate = value;
+                    });
+                    debit_installment.clear();
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromARGB(255, 126, 120, 120),
+                ),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
+                    if (debit_installment.text.isEmpty) {
+                      DateTime now = DateTime.now();
+                      Duration? difference = _selectedDate?.difference(now);
+                      int monthsDifference = (difference!.inDays / 30)
+                          .floor(); // round up the result to the nearest integer
+                      debit_installment.text =
+                          (double.parse(debit_amount.text.trim()) /
+                                  monthsDifference)
+                              .toString();
+                    }
+                    final form = debitForm(
+                        debit_name: debit_name.text.trim(),
+                        debit_amount: debit_amount.text.trim(),
+                        debit_installment: debit_installment.text.trim(),
+                        debit_final_date: DateFormat('dd/MM/yy hh:mm:ss')
+                            .format(_selectedDate!),
+                        user: widget.user);
+                    bool successful = await debit(form);
+                    // Do something with the form data, e.g. submit to server
+                    await Future.delayed(const Duration(seconds: 1));
+                    Navigator.pop(context);
+
+                    if (successful) {
+                      Navigator.pop(context);
+                    }
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromARGB(255, 19, 184, 107),
+                ),
+                child: Text('Submit'),
+              ),
+            ],
+          )
+        ]);
   }
 }

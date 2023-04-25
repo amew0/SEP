@@ -160,7 +160,7 @@ class _MyBillPopupState extends State<MyBillPopup> {
       actions: <Widget>[
         ElevatedButton(
           onPressed: () {
-            Navigator.pop(context, AmountBill);
+            Navigator.pop(context, 0);
           },
           child: const Text('Cancel'),
         ),

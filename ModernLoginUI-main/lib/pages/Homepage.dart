@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 // import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-// import 'package:flutter_sms/flutter_sms.dart';
+import 'package:flutter_sms/flutter_sms.dart';
 import 'package:modernlogintute/pages/allowance.dart';
 import 'package:modernlogintute/pages/login_page.dart';
 import 'package:flutter/material.dart';
@@ -21,11 +21,11 @@ import 'bill.dart';
 import 'debit.dart';
 import 'chat.dart';
 
-class UserForm {
+class userForm {
   List user;
   // String password;
 
-  UserForm({required this.user});
+  userForm({required this.user});
 
   Map<String, dynamic> toJson() => {
         'user': user,
@@ -49,12 +49,12 @@ class _HomepageState extends State<Homepage> {
 
   // double _balance = double.parse(widget.user[0]["Balance"]);
 
-  bool _isLoading = false;
+  // bool _isLoading = false;
   late List<dynamic> itemList = [];
 
   Future<dynamic> nfc_handle(user) async {
     print("nfc_handle function called");
-    final form = UserForm(
+    final form = userForm(
       user: user,
     );
     final url =
@@ -72,7 +72,7 @@ class _HomepageState extends State<Homepage> {
   }
 
   Future<dynamic> statement(user) async {
-    final form = UserForm(
+    final form = userForm(
       user: user,
     );
     final url = Uri.parse(
@@ -102,7 +102,7 @@ class _HomepageState extends State<Homepage> {
     // List user = [];
 
     print(user.runtimeType);
-    final form = UserForm(
+    final form = userForm(
       user: user,
     );
     final url = Uri.parse(
@@ -127,77 +127,82 @@ class _HomepageState extends State<Homepage> {
   }
 
   @override
-  void initState() {
-    if (Platform.isAndroid || Platform.isIOS) {
-      // TODO: implement initState
-      super.initState();
-      LocalNotificationService.initilize();
-      _balance = double.parse(widget.user[0]["Balance"]);
-      print(_balance);
-      // Terminated State
-      FirebaseMessaging.instance.getInitialMessage().then((event) {
-        if (event != null) {
-          setState(() {
-            notificationMsg =
-                "${event.notification!.title} ${event.notification!.body} I am coming from terminated state";
-          });
-        }
-      });
+  // void initState() {
+  //   if (Platform.isAndroid || Platform.isIOS) {
+  //     // TODO: implement initState
+  //     super.initState();
+  //     LocalNotificationService.initilize();
+  //     _balance = double.parse(widget.user[0]["Balance"]);
+  //     print(_balance);
+  //     // Terminated State
+  //     FirebaseMessaging.instance.getInitialMessage().then((event) {
+  //       if (event != null) {
+  //         setState(() {
+  //           notificationMsg =
+  //               "${event.notification!.title} ${event.notification!.body} I am coming from terminated state";
+  //         });
+  //       }
+  //     });
 
-      // Foregrand State
-      FirebaseMessaging.onMessage.listen((event) {
-        LocalNotificationService.showNotificationOnForeground(event);
-        setState(() {
-          notificationMsg =
-              "${event.notification!.title} ${event.notification!.body} I am coming from foreground";
-        });
-      });
+  //     // Foregrand State
+  //     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+  //       // LocalNotificationService.showNotificationOnForeground(event);
+  //       print("here");
+  //       print(message.notification);
+  //       print("here1");
 
-      // background State
-      FirebaseMessaging.onMessageOpenedApp.listen((event) {
-        setState(() {
-          notificationMsg =
-              "${event.notification!.title} ${event.notification!.body} I am coming from background";
-        });
-      });
-    }
-  }
+  //       print(
+  //           'Received message: ${message.notification?.title} - ${message.notification?.body}');
+  //       print("here2");
 
+  //       // setState(() {
+  //       //   notificationMsg =
+  //       //       "${message.notification.title} ${message.notification.body} I am coming from foreground";
+  //       // });
+  //     });
+
+  //     // background State
+  //     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+  //       print(
+  //           'Received message: ${message.notification!.title} - ${message.notification!.body}');
+
+  //       // setState(() {
+  //       //   notificationMsg =
+  //       //       "${message.notification.title} ${message.notification.body} I am coming from background";
+  //       // });
+  //     });
+  //   }
+  // }
+
+  late String img;
   @override
   Widget build(BuildContext context) {
     if (_balance == 0) {
       _balance = double.parse(widget.user[0]["Balance"]);
     }
-
+    if (Platform.isAndroid || Platform.isIOS) {
+      img = "lib/images/background3.png";
+    } else {
+      img = "lib/images/background8.png";
+    }
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Homepage'),
-      ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      // widget.user[0]["Balance"],
-                      _balance.toString(),
-                      style: TextStyle(
-                        color: Colors.grey[700],
-                        fontSize: 16,
-                      ),
-                    ),
-                    Text(
-                      notificationMsg,
-                      style: TextStyle(
-                        color: Colors.grey[700],
-                        fontSize: 16,
-                      ),
-                    ),
-                    TextButton(
+        // : AssetImage("assets/images/background.jpg"),
+        // appBar: AppBar(
+        //   title: const Text('Homepage'),
+        // ),
+        body: //_isLoading
+            // ? Center(child: CircularProgressIndicator())
+            Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(img),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                child: Column(children: [
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: ElevatedButton.icon(
                       onPressed: () async {
                         await logout(widget.user);
                         Navigator.push(
@@ -205,172 +210,404 @@ class _HomepageState extends State<Homepage> {
                           MaterialPageRoute(builder: (context) => LoginPage()),
                         );
                       },
-                      child: Text(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color.fromARGB(255, 77, 105, 230),
+                      ),
+                      icon: Icon(Icons.logout),
+                      label: Text(
                         'Logout',
-                        style:
-                            TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
+                        style: TextStyle(
+                            fontFamily: 'Poppins',
+                            color: Color.fromARGB(255, 255, 255, 255)),
                       ),
                     ),
-                    TextButton(
-                      onPressed: () {
-                        if (widget.user[0]['Privilege'] == "Main") {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => RegistrationPage(
-                                    message: "family", user: widget.user)),
-                          );
-                        }
-                      },
-                      child: Text(
-                        'Family Member',
-                        style:
-                            TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        if (widget.user[0]['Privilege'] == "Main") {
-                          double result = await showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return MyBillPopup(user: widget.user);
-                            },
-                          );
-                          print(result);
-                          setState(() {
-                            _balance = _balance - result;
-                          });
-                        }
-                      },
-                      child: Text(
-                        'Pay Bills',
-                        style:
-                            TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        if (widget.user[0]['Privilege'] == "Main") {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return ChatScreen(user: widget.user);
-                            },
-                          );
-                        }
-                      },
-                      child: Text(
-                        'Chat',
-                        style:
-                            TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        print(widget.user[0]['Privilege']);
-                        if (widget.user[0]['Privilege'] == "Main") {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return MydebitPopup(user: widget.user);
-                            },
-                          );
-                        }
-                      },
-                      child: Text(
-                        'Add Debits',
-                        style:
-                            TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
-                      ),
-                    ),
-                    // TextButton(
-                    //   onPressed: () {},
-                    //   child: Text(
-                    //     'Pay',
-                    //     style:
-                    //         TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
-                    //   ),
-                    // ),
-                    TextButton(
-                      onPressed: () async {
-                        if (widget.user[0]['Privilege'] == "Main") {
-                          double result = await showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return MyallowancePopup(user: widget.user);
-                            },
-                          );
+                  ),
+                  Center(
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Welcome, ' + widget.user[0]['Username'],
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 77, 105, 230),
+                              fontSize: 44,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          // Text(
+                          //   'Current Balance:',
+                          //   style: TextStyle(
+                          //     color: Colors.grey[700],
+                          //     fontSize: 30,
+                          //     fontWeight: FontWeight.w600,
+                          //   ),
+                          // ),
+                          // Text(
+                          //   // widget.user[0]["Balance"],
+                          //   _balance.toString(),
+                          //   style: TextStyle(
+                          //     color: Colors.grey[700],
+                          //     fontSize: 23,
+                          //   ),
+                          // ),
 
-                          setState(() {
-                            _balance = _balance - result;
-                          });
-                        }
-                      },
-                      child: Text(
-                        'Add allowance',
-                        style:
-                            TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        List<dynamic> stat = await statement(widget.user);
+                          SizedBox(height: 5),
+                          ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: SizedBox(
+                                  width: 299,
+                                  height: 168,
+                                  child: ClipRect(
+                                    child: Stack(
+                                      children: [
+                                        Image.asset(
+                                          'lib/images/gradient_card4.png', // replace with your own image file
+                                          fit: BoxFit.fill,
+                                        ),
+                                        Positioned(
+                                          top: 20,
+                                          left: 22,
+                                          child: Text(
+                                            'Savings Account',
+                                            style: TextStyle(
+                                              color: Color.fromARGB(
+                                                  255, 248, 247, 247),
+                                              fontSize: 19,
+                                              letterSpacing: 4,
+                                              fontWeight: FontWeight.normal,
+                                            ),
+                                          ),
+                                        ),
+                                        Positioned(
+                                          top: 45,
+                                          left: 22,
+                                          child: Text(
+                                            widget.user[0]['Account'],
+                                            style: TextStyle(
+                                              color: Color.fromARGB(
+                                                  255, 248, 247, 247),
+                                              fontSize: 14,
+                                              letterSpacing: 4,
+                                              fontWeight: FontWeight.normal,
+                                            ),
+                                          ),
+                                        ),
+                                        Positioned(
+                                          top: 60,
+                                          left: 22,
+                                          child: Text(
+                                            'Savings Account',
+                                            style: TextStyle(
+                                                color: Color.fromARGB(
+                                                    255, 248, 247, 247),
+                                                fontSize: 16,
+                                                letterSpacing: 1,
+                                                fontWeight: FontWeight.normal),
+                                          ),
+                                        ),
+                                        Positioned(
+                                          top: 130,
+                                          right: 22,
+                                          child: Text(
+                                            "AED " + _balance.toString(),
+                                            style: TextStyle(
+                                              color: Color.fromARGB(
+                                                  255, 248, 247, 247),
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.normal,
+                                            ),
+                                          ),
+                                        ),
+                                        Positioned(
+                                          top: 115,
+                                          left: 22,
+                                          child: Text(
+                                            'Card Holder',
+                                            style: TextStyle(
+                                              color: Color.fromARGB(
+                                                  255, 248, 247, 247),
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.normal,
+                                            ),
+                                          ),
+                                        ),
+                                        Positioned(
+                                          top: 135,
+                                          left: 22,
+                                          child: Text(
+                                            widget.user[0]['Username'],
+                                            style: TextStyle(
+                                              color: Color.fromARGB(
+                                                  255, 248, 247, 247),
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.normal,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ))),
 
-                        itemList.add(stat);
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return StatementPopup(
-                                user: widget.user, itemList: itemList[0][0]);
-                          },
-                        );
-                      },
-                      child: Text(
-                        'get statement',
-                        style:
-                            TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              if (widget.user[0]['Privilege'] == "Main") {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => RegistrationPage(
+                                          message: "family",
+                                          user: widget.user)),
+                                );
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  Color.fromARGB(255, 77, 105, 230),
+                            ),
+                            icon: Icon(Icons.person_add),
+                            label: Text(
+                              'Add Family',
+                              style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  color: Color.fromARGB(255, 255, 255, 255)),
+                            ),
+                          ),
+
+                          const SizedBox(height: 10),
+
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              if (widget.user[0]['Privilege'] == "Main") {
+                                dynamic result = await showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return MyBillPopup(user: widget.user);
+                                  },
+                                );
+                                setState(() {
+                                  if (result != null)
+                                    _balance = _balance - result;
+                                });
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  Color.fromARGB(255, 77, 105, 230),
+                            ),
+                            icon: Icon(Icons.receipt),
+                            label: Text(
+                              'Pay Bills',
+                              style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  color: Color.fromARGB(255, 255, 255, 255)),
+                            ),
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              if (widget.user[0]['Privilege'] == "Main") {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return ChatScreen(user: widget.user);
+                                  },
+                                );
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  Color.fromARGB(255, 77, 105, 230),
+                            ),
+                            icon: Icon(Icons.chat_bubble_sharp),
+                            label: Text(
+                              'Chatbot',
+                              style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  color: Color.fromARGB(255, 255, 255, 255)),
+                            ),
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              print(widget.user[0]['Privilege']);
+                              if (widget.user[0]['Privilege'] == "Main") {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return MydebitPopup(user: widget.user);
+                                  },
+                                );
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  Color.fromARGB(255, 77, 105, 230),
+                            ),
+                            icon: Icon(Icons.payments_sharp),
+                            label: Text(
+                              'Add Debit',
+                              style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  color: Color.fromARGB(255, 255, 255, 255)),
+                            ),
+                          ),
+                          // TextButton(
+                          //   onPressed: () {},
+                          //   child: Text(
+                          //     'Pay',
+                          //     style:
+                          //         TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
+                          //   ),
+                          // ),
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              if (widget.user[0]['Privilege'] == "Main") {
+                                dynamic result = await showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return MyallowancePopup(user: widget.user);
+                                  },
+                                );
+
+                                setState(() {
+                                  if (result != null) {
+                                    _balance = _balance - result;
+                                  }
+                                });
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  Color.fromARGB(255, 77, 105, 230),
+                            ),
+                            icon: Icon(Icons.send),
+                            label: Text(
+                              'Send Money',
+                              style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  color: Color.fromARGB(255, 255, 255, 255)),
+                            ),
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              List<dynamic> stat = await statement(widget.user);
+
+                              itemList.add(stat);
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return StatementPopup(
+                                      user: widget.user,
+                                      itemList: itemList[0][0]);
+                                },
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  Color.fromARGB(255, 77, 105, 230),
+                            ),
+                            icon: Icon(Icons.text_snippet_outlined),
+                            label: Text(
+                              'Statement',
+                              style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  color: Color.fromARGB(255, 255, 255, 255)),
+                            ),
+                          ),
+
+                          Visibility(
+                            visible: (Platform.isAndroid || Platform.isIOS),
+                            child: ElevatedButton.icon(
+                              onPressed: () async {
+                                if (Platform.isAndroid || Platform.isIOS) {
+                                  // Check availability
+                                  bool isAvailable =
+                                      await NfcManager.instance.isAvailable();
+                                  print("in");
+                                  print(isAvailable);
+                                  // Start Session
+                                  NfcManager.instance.startSession(
+                                    // print("hey")
+                                    onDiscovered: (NfcTag tag) async {
+                                      // await
+                                      await nfc_handle(widget.user);
+                                      setState(() {
+                                        _balance = _balance - 20.0;
+                                      });
+                                      if (tag != null) {
+                                        print("found");
+                                        // Ndef ndef = await tag.readNdef();
+                                        // NdefMessage message = ndef.cachedMessage;
+                                      } else
+                                        print("not found");
+                                      NfcManager.instance.stopSession();
+                                      // Do something with an NfcTag instance.
+                                    },
+                                  );
+                                  // Stop Session
+                                  // NfcManager.instance.stopSession();
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    Color.fromARGB(255, 77, 105, 230),
+                              ),
+                              icon: Icon(Icons.tap_and_play_outlined),
+                              label: Text(
+                                'NFC',
+                                style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    color: Color.fromARGB(255, 255, 255, 255)),
+                              ),
+                            ),
+                          )
+                          // ElevatedButton.icon(
+                          //   onPressed: () async {
+                          //     if (Platform.isAndroid || Platform.isIOS) {
+                          //       // Check availability
+                          //       bool isAvailable =
+                          //           await NfcManager.instance.isAvailable();
+                          //       print("in");
+                          //       print(isAvailable);
+                          //       // Start Session
+                          //       NfcManager.instance.startSession(
+                          //         // print("hey")
+                          //         onDiscovered: (NfcTag tag) async {
+                          //           // await
+                          //           await nfc_handle(widget.user);
+                          //           setState(() {
+                          //             _balance = _balance - 20.0;
+                          //           });
+                          //           if (tag != null) {
+                          //             print("found");
+                          //             // Ndef ndef = await tag.readNdef();
+                          //             // NdefMessage message = ndef.cachedMessage;
+                          //           } else
+                          //             print("not found");
+                          //           NfcManager.instance.stopSession();
+                          //           // Do something with an NfcTag instance.
+                          //         },
+                          //       );
+                          //       // Stop Session
+                          //       // NfcManager.instance.stopSession();
+                          //     }
+                          //   },
+                          //   style: ElevatedButton.styleFrom(
+                          //     backgroundColor:
+                          //         Color.fromARGB(255, 77, 105, 230),
+                          //   ),
+                          //   icon: Icon(Icons.tap_and_play_outlined),
+                          //   label: Text(
+                          //     'NFC',
+                          //     style: TextStyle(
+                          //         fontFamily: 'Poppins',
+                          //         color: Color.fromARGB(255, 255, 255, 255)),
+                          //   ),
+                          // ),
+                        ],
                       ),
                     ),
-                    TextButton(
-                      onPressed: () async {
-                        if (Platform.isAndroid || Platform.isIOS) {
-                          // Check availability
-                          bool isAvailable =
-                              await NfcManager.instance.isAvailable();
-                          print("in");
-                          print(isAvailable);
-                          // Start Session
-                          NfcManager.instance.startSession(
-                            // print("hey")
-                            onDiscovered: (NfcTag tag) async {
-                              // await
-                              await nfc_handle(widget.user);
-                              setState(() {
-                                _balance = _balance - 20.0;
-                              });
-                              if (tag != null) {
-                                print("found");
-                                // Ndef ndef = await tag.readNdef();
-                                // NdefMessage message = ndef.cachedMessage;
-                              } else
-                                print("not found");
-                              NfcManager.instance.stopSession();
-                              // Do something with an NfcTag instance.
-                            },
-                          );
-                          // Stop Session
-                          // NfcManager.instance.stopSession();
-                        }
-                      },
-                      child: Text("NFC"),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-    );
+                  ),
+                ])));
   }
-
-  void debit() {}
 }

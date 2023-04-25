@@ -163,7 +163,7 @@ class Loginpage extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Color.fromARGB(255, 255, 255, 255),
       body: SafeArea(
         child: Center(
           child: Column(
@@ -172,25 +172,28 @@ class Loginpage extends State<LoginPage> {
               // const SizedBox(height: 50),
 
               // logo
+              Text(
+                'Family Banking',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 0, 0, 0),
+                  fontSize: 44,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const Icon(
                 Icons.account_balance,
                 size: 100,
               ),
 
               const SizedBox(height: 10),
-              Text(
-                notificationMsg,
-                style: TextStyle(
-                  color: Colors.grey[700],
-                  fontSize: 16,
-                ),
-              ),
+
               // welcome!
               Text(
                 'Welcome!',
                 style: TextStyle(
-                  color: Colors.grey[700],
-                  fontSize: 16,
+                  color: Color.fromARGB(255, 0, 0, 0),
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
 
@@ -203,6 +206,7 @@ class Loginpage extends State<LoginPage> {
                 controller: usernameController,
                 hintText: 'Username',
                 obscureText: false,
+                prefixicon: Icon(Icons.person),
               ),
 
               const SizedBox(height: 10),
@@ -212,6 +216,7 @@ class Loginpage extends State<LoginPage> {
                 controller: passwordController,
                 hintText: 'Password',
                 obscureText: true,
+                prefixicon: Icon(Icons.lock),
               ),
 
               const SizedBox(height: 10),
@@ -261,34 +266,6 @@ class Loginpage extends State<LoginPage> {
                   backgroundColor: MaterialStateProperty.all<Color>(
                       Color.fromARGB(255, 7, 7, 7)),
                 ),
-              ),
-
-              TextButton(
-                onPressed: () async {
-                  // Check availability
-                  bool isAvailable =
-                      await NfcManager.instance.isAvailable(); // ?? false;
-                  print("in");
-                  print(isAvailable);
-                  // Start Session
-                  NfcManager.instance.startSession(
-                    // print("hey");
-                    onDiscovered: (NfcTag tag) async {
-                      // await nfc_handle();
-                      print(tag);
-                      if (tag != null) {
-                        print("found");
-                      } else
-                        print("not found");
-                      NfcManager.instance.stopSession();
-                      // Do something with an NfcTag instance.
-                    },
-                  );
-                  // Stop Session
-                  // NfcManager.instance.stopSession();
-                  print("out");
-                },
-                child: Text("NFC"),
               ),
 
               // const SizedBox(height: 25),

@@ -21,6 +21,23 @@ void main() async {
     FirebaseMessaging.onBackgroundMessage(backroundHandler);
   }
 
+  // Initialize Firebase Messaging and handle incoming messages
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    // This callback runs when the app is in the foreground
+    print(message);
+    print(
+        'Received message: ${message.notification?.title} - ${message.notification?.body}');
+    // Display the notification using a Flutter plugin, e.g. flutter_local_notifications
+  });
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    // This callback runs when the app is opened from a notification
+    print(message);
+
+    print(
+        'Opened message: ${message.notification?.title} - ${message.notification?.body}');
+    // Navigate to the appropriate screen in the app
+  });
+
   runApp(const MyApp());
 }
 
