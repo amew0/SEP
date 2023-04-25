@@ -50,6 +50,7 @@ dependencies:
   flutter_local_notifications: ^9.1.5
   # permission_handler: ^10.2.0
   logging: any
+  animated_background: ^2.0.0
   
 dev_dependencies:
   dart_dev: ^4.0.0

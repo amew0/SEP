@@ -96,7 +96,17 @@ class _MyBillPopupState extends State<MyBillPopup> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Bill form'),
+      backgroundColor: Color.fromARGB(249, 122, 200, 214).withOpacity(0.8),
+      // backgroundColor: Colors.transparent,
+      title: const Text(
+        'Bill Form',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: Color.fromARGB(255, 13, 13, 14),
+          fontSize: 44,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
       content: Form(
         key: _formKey,
         child: Column(
@@ -104,7 +114,14 @@ class _MyBillPopupState extends State<MyBillPopup> {
           children: <Widget>[
             TextFormField(
               controller: bill_name,
-              decoration: InputDecoration(labelText: 'Bill Name'),
+              decoration: InputDecoration(
+                labelText: 'Bill Name',
+                labelStyle: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromARGB(
+                      255, 13, 13, 14), // set your desired color here
+                ),
+              ),
               validator: (value) {
                 if (value!.isEmpty) {
                   return 'Please enter bill name';
@@ -117,7 +134,14 @@ class _MyBillPopupState extends State<MyBillPopup> {
             ),
             TextFormField(
               controller: bill_amount,
-              decoration: InputDecoration(labelText: 'Bill amount'),
+              decoration: InputDecoration(
+                labelText: 'Bill amount',
+                labelStyle: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromARGB(
+                      255, 13, 13, 14), // set your desired color here
+                ),
+              ),
               keyboardType: TextInputType.number,
               inputFormatters: <TextInputFormatter>[
                 FilteringTextInputFormatter.allow(RegExp(
@@ -137,6 +161,14 @@ class _MyBillPopupState extends State<MyBillPopup> {
               controller: bill_description,
               maxLines: 10,
               decoration: const InputDecoration(
+                // labelText: 'Bill Description',
+                // labelStyle: TextStyle(
+                //   fontWeight: FontWeight.bold,
+
+                //   color: Color.fromARGB(
+                //       255, 13, 13, 14), // set your desired color here
+                // ),
+                // contentPadding: EdgeInsets.only(top: 8.0, left: 12.0),
                 border: OutlineInputBorder(),
               ),
             ),
@@ -151,7 +183,10 @@ class _MyBillPopupState extends State<MyBillPopup> {
               ),
               Text(
                 'make this payment monthly recurring',
-                style: TextStyle(color: Colors.grey[700], fontSize: 10),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 39, 38, 38),
+                    fontSize: 10),
               ),
             ]),
           ],

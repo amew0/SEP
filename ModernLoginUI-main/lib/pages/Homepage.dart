@@ -181,7 +181,7 @@ class _HomepageState extends State<Homepage> {
       _balance = double.parse(widget.user[0]["Balance"]);
     }
     if (Platform.isAndroid || Platform.isIOS) {
-      img = "lib/images/background3.png";
+      img = "lib/images/background9.png";
     } else {
       img = "lib/images/background10.png";
     }
@@ -192,6 +192,7 @@ class _HomepageState extends State<Homepage> {
         // ),
         body: //_isLoading
             // ? Center(child: CircularProgressIndicator())
+
             Container(
                 decoration: BoxDecoration(
                   image: DecorationImage(
@@ -350,7 +351,7 @@ class _HomepageState extends State<Homepage> {
                                       ],
                                     ),
                                   ))),
-
+                          const SizedBox(height: 10),
                           ElevatedButton.icon(
                             onPressed: () {
                               if (widget.user[0]['Privilege'] == "Main") {
@@ -376,7 +377,7 @@ class _HomepageState extends State<Homepage> {
                             ),
                           ),
 
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 5),
 
                           ElevatedButton.icon(
                             onPressed: () async {
@@ -405,6 +406,7 @@ class _HomepageState extends State<Homepage> {
                                   color: Color.fromARGB(255, 255, 255, 255)),
                             ),
                           ),
+                          const SizedBox(height: 5),
                           ElevatedButton.icon(
                             onPressed: () {
                               if (widget.user[0]['Privilege'] == "Main") {
@@ -428,6 +430,7 @@ class _HomepageState extends State<Homepage> {
                                   color: Color.fromARGB(255, 255, 255, 255)),
                             ),
                           ),
+                          const SizedBox(height: 5),
                           ElevatedButton.icon(
                             onPressed: () {
                               print(widget.user[0]['Privilege']);
@@ -452,14 +455,8 @@ class _HomepageState extends State<Homepage> {
                                   color: Color.fromARGB(255, 255, 255, 255)),
                             ),
                           ),
-                          // TextButton(
-                          //   onPressed: () {},
-                          //   child: Text(
-                          //     'Pay',
-                          //     style:
-                          //         TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
-                          //   ),
-                          // ),
+
+                          const SizedBox(height: 5),
                           ElevatedButton.icon(
                             onPressed: () async {
                               if (widget.user[0]['Privilege'] == "Main") {
@@ -489,6 +486,7 @@ class _HomepageState extends State<Homepage> {
                                   color: Color.fromARGB(255, 255, 255, 255)),
                             ),
                           ),
+                          const SizedBox(height: 5),
                           ElevatedButton.icon(
                             onPressed: () async {
                               List<dynamic> stat = await statement(widget.user);
@@ -515,6 +513,7 @@ class _HomepageState extends State<Homepage> {
                                   color: Color.fromARGB(255, 255, 255, 255)),
                             ),
                           ),
+                          const SizedBox(height: 5),
 
                           Visibility(
                             visible: (Platform.isAndroid || Platform.isIOS),

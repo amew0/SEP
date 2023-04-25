@@ -95,11 +95,12 @@ class _MydebitPopupState extends State<MydebitPopup> {
   Widget build(BuildContext context) {
     bool isFinalDateEdittable = true;
     return AlertDialog(
+        backgroundColor: Color.fromARGB(255, 171, 182, 231),
         title: const Text(
           'Debit form',
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: Color.fromARGB(255, 0, 0, 0),
+            color: Color.fromARGB(255, 77, 105, 230),
             fontSize: 44,
 
             // fontWeight: FontWeight,
@@ -112,7 +113,12 @@ class _MydebitPopupState extends State<MydebitPopup> {
             children: <Widget>[
               TextFormField(
                 controller: debit_name,
-                decoration: const InputDecoration(labelText: 'Debit Name'),
+                decoration: const InputDecoration(
+                    enabledBorder: const OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: Color.fromARGB(255, 0, 0, 0)),
+                    ),
+                    labelText: 'Debit Name'),
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'Please enter debit name';
@@ -123,6 +129,7 @@ class _MydebitPopupState extends State<MydebitPopup> {
                 //   debit_name = value;
                 // },
               ),
+              const SizedBox(height: 5),
               TextFormField(
                 controller: debit_amount,
                 decoration: const InputDecoration(
@@ -146,7 +153,7 @@ class _MydebitPopupState extends State<MydebitPopup> {
                 //   debit_amount = value;
                 // },
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 5),
               TextFormField(
                 controller: debit_installment,
                 decoration: const InputDecoration(
@@ -179,7 +186,7 @@ class _MydebitPopupState extends State<MydebitPopup> {
                   }
                 },
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 5),
               DateTimeFormField(
                 // controller: _dateOfBirthController,
                 decoration: const InputDecoration(
@@ -259,7 +266,7 @@ class _MydebitPopupState extends State<MydebitPopup> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromARGB(255, 19, 184, 107),
+                  backgroundColor: Color.fromARGB(255, 77, 105, 230),
                 ),
                 child: Text('Submit'),
               ),
