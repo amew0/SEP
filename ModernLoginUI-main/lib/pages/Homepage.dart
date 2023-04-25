@@ -183,7 +183,7 @@ class _HomepageState extends State<Homepage> {
     if (Platform.isAndroid || Platform.isIOS) {
       img = "lib/images/background3.png";
     } else {
-      img = "lib/images/background8.png";
+      img = "lib/images/background10.png";
     }
     return Scaffold(
         // : AssetImage("assets/images/background.jpg"),
@@ -202,7 +202,8 @@ class _HomepageState extends State<Homepage> {
                 child: Column(children: [
                   Align(
                     alignment: Alignment.topLeft,
-                    child: ElevatedButton.icon(
+                    child: SafeArea(
+                        child: ElevatedButton.icon(
                       onPressed: () async {
                         await logout(widget.user);
                         Navigator.push(
@@ -220,7 +221,7 @@ class _HomepageState extends State<Homepage> {
                             fontFamily: 'Poppins',
                             color: Color.fromARGB(255, 255, 255, 255)),
                       ),
-                    ),
+                    )),
                   ),
                   Center(
                     child: Form(

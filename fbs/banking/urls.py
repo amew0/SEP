@@ -17,9 +17,6 @@ urlpatterns = [
     path("nfc",views.nfc,name="nfc"),
 
     # path("<str:etc>", views.errorPage, name="errorPage"),
-
-
-
     #API Routes
-    path("ccds", views.credit_card_details, name="ccds")
+    # path("ccds", views.credit_card_details, name="ccds")
 ]
