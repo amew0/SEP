@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.modernlogintute">
+    package="com.example.fbs">
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.NFC_PREFERRED_PAYMENT_INFO"/>
     <uses-permission android:name="android.permission.SEND_SMS"/>
@@ -14,7 +14,7 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <!-- <service
-            android:name="com.example.modernlogintute.MyFirebaseMessagingService"
+            android:name="com.example.fbs.MyFirebaseMessagingService"
             android:exported="false">
         <intent-filter>
             <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -48,11 +48,11 @@
               />
             <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="com.example.modernlogintute"
+            android:value="com.example.fbs"
             />
             <meta-data
                 android:name="com.google.firebase.messaging.default_notification_channel_name"
-                android:value="modernlogintute"/>
+                android:value="fbs"/>
             <meta-data
                 android:name="com.google.firebase.messaging.default_notification_channel_description"
                 android:value="your_channel_description"/>

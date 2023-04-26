@@ -19,7 +19,7 @@ class LocalNotificationService {
   static void showNotificationOnForeground(RemoteMessage message) {
     final notificationDetail = NotificationDetails(
         android: AndroidNotificationDetails(
-            "com.example.modernlogintute", "modernlogintute",
+            "com.example.fbs", "fbs",
             importance: Importance.max, priority: Priority.high));
 
     _notificationsPlugin.show(

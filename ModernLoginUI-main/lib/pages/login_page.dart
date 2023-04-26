@@ -8,10 +8,10 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_sms/flutter_sms.dart';
 // import 'package:flutter_nfc/flutter_nfc.dart';
 import 'package:http/http.dart' as http;
-import 'package:modernlogintute/components/my_textfield.dart';
-import 'package:modernlogintute/pages/Homepage.dart';
-import 'package:modernlogintute/pages/Registrationpage.dart';
-import 'package:modernlogintute/services/local_notifications.dart';
+import 'package:fbs/components/my_textfield.dart';
+import 'package:fbs/pages/Homepage.dart';
+import 'package:fbs/pages/Registrationpage.dart';
+import 'package:fbs/services/local_notifications.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -61,7 +61,7 @@ class Loginpage extends State<LoginPage> {
   String? fcm_token;
   // static const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
   //   'channelId', // your channel id
-  //   'com.example.modernlogintute', // your channel name
+  //   'com.example.fbs', // your channel name
   //   importance: Importance.high,
   //   priority: Priority.high,
   //   enableVibration: true,

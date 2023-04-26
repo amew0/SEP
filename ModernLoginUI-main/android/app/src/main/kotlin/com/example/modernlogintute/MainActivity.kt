@@ -1,4 +1,4 @@
-package com.example.modernlogintute
+package com.example.fbs
 
 import io.flutter.embedding.android.FlutterActivity
 

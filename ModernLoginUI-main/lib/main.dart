@@ -1,6 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-// import 'package:modernlogintute/pages/Homepage.dart';
+// import 'package:fbs/pages/Homepage.dart';
 import 'pages/login_page.dart';
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';

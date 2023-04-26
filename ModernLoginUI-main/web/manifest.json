@@ -1,6 +1,6 @@
 {
-    "name": "modernlogintute",
-    "short_name": "modernlogintute",
+    "name": "fbs",
+    "short_name": "fbs",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
