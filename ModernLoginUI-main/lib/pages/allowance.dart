@@ -115,8 +115,20 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
     }
     print(widget.user[0]);
     return AlertDialog(
-      title: const Text('Allowance Form'),
-      content: Form(
+      clipBehavior: Clip.none,
+      backgroundColor: Color.fromARGB(255, 171, 182, 231),
+      title: const Text(
+        'Allowance',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: Color.fromARGB(255, 77, 105, 230),
+          fontSize: 44,
+
+          // fontWeight: FontWeight,
+        ),
+      ),
+      content: SingleChildScrollView(
+          child: Form(
         key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -171,12 +183,15 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
             ]),
           ],
         ),
-      ),
+      )),
       actions: <Widget>[
         ElevatedButton(
           onPressed: () {
             Navigator.pop(context, 0);
           },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color.fromARGB(255, 126, 120, 120),
+          ),
           child: Text('Cancel'),
         ),
         ElevatedButton(

@@ -85,7 +85,7 @@ class Loginpage extends State<LoginPage> {
     print(form.username);
 
     final url = Uri.parse(
-        'http://127.0.0.1:8000/login_flutter'); // insert correct API endpoint
+        'https://fbsbanking.herokuapp.com/login_flutter'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
     final body = json.encode(form.toJson());
     final response = await http.post(url, headers: headers, body: body);
@@ -141,30 +141,95 @@ class Loginpage extends State<LoginPage> {
         }
       });
 
-      // Foreground State
-      FirebaseMessaging.onMessage.listen((event) {
-        LocalNotificationService.showNotificationOnForeground(event);
-        setState(() {
-          notificationMsg =
-              "${event.notification!.title} ${event.notification!.body} I am coming from foreground";
-        });
+      // Initialize Firebase Messaging and handle incoming messages
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        // This callback runs when the app is in the foreground
+        LocalNotificationService.showNotificationOnForeground(message);
+        print(message);
+        // _showDialog;
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => buildAlertDialog(
+              context,
+              '${message.notification?.title}',
+              '${message.notification?.body}'),
+        );
+        print(
+            'Received message: ${message.notification?.title} - ${message.notification?.body}');
+        // Display the notification using a Flutter plugin, e.g. flutter_local_notifications
       });
+      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+        // This callback runs when the app is opened from a notification
+        LocalNotificationService.showNotificationOnForeground(message);
 
-      // background State
-      FirebaseMessaging.onMessageOpenedApp.listen((event) {
-        setState(() {
-          notificationMsg =
-              "${event.notification!.title} ${event.notification!.body} I am coming from background";
-        });
+        print(message);
+
+        print(
+            'Opened message: ${message.notification?.title} - ${message.notification?.body}');
+        // Navigate to the appropriate screen in the app
       });
+      // Foreground State
+      // FirebaseMessaging.onMessage.listen((event) {
+      //   LocalNotificationService.showNotificationOnForeground(event);
+      //   setState(() {
+      //     notificationMsg =
+      //         "${event.notification!.title} ${event.notification!.body} I am coming from foreground";
+      //   });
+      // });
+
+      // // background State
+      // FirebaseMessaging.onMessageOpenedApp.listen((event) {
+      //   setState(() {
+      //     notificationMsg =
+      //         "${event.notification!.title} ${event.notification!.body} I am coming from background";
+      //   });
+      // });
     }
   }
 
+  Widget buildAlertDialog(BuildContext context, String Title, String Body) {
+    return AlertDialog(
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(Title),
+          GestureDetector(
+            onTap: () => Navigator.of(context).pop(),
+            child: Icon(Icons.close),
+          ),
+        ],
+      ), //const Text('Notification message'),
+      content: Text(Body),
+
+      // actions: [
+      //   TextButton(
+      //     child: const Text('OK'),
+      //     onPressed: () {
+      //       Navigator.of(context).pop();
+      //     },
+      //   ),
+      // ],
+    );
+  }
+
+  late String img;
   @override
   Widget build(BuildContext context) {
+    if (Platform.isAndroid || Platform.isIOS) {
+      img = "lib/images/background9.png";
+    } else {
+      img = "lib/images/background10.png";
+    }
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Color.fromARGB(255, 255, 255, 255),
-      body: SafeArea(
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(img),
+            fit: BoxFit.cover,
+          ),
+        ),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -175,13 +240,14 @@ class Loginpage extends State<LoginPage> {
               Text(
                 'Family Banking',
                 style: TextStyle(
-                  color: Color.fromARGB(255, 0, 0, 0),
+                  color: Color.fromARGB(255, 77, 105, 230),
                   fontSize: 44,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const Icon(
                 Icons.account_balance,
+                color: Colors.blueAccent,
                 size: 100,
               ),
 
@@ -264,7 +330,7 @@ class Loginpage extends State<LoginPage> {
                 child: Text('Login'),
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(
-                      Color.fromARGB(255, 7, 7, 7)),
+                      Color.fromARGB(255, 77, 105, 230)),
                 ),
               ),
 
@@ -277,7 +343,7 @@ class Loginpage extends State<LoginPage> {
                 children: [
                   Text(
                     'Not a member?',
-                    style: TextStyle(color: Colors.grey[700]),
+                    style: TextStyle(color: Color.fromARGB(255, 8, 8, 8)),
                   ),
                   const SizedBox(width: 4),
                   // FloatingActionButton(
@@ -296,8 +362,7 @@ class Loginpage extends State<LoginPage> {
                     },
                     child: Text(
                       'Register',
-                      style:
-                          TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
+                      style: TextStyle(color: Color.fromARGB(255, 167, 41, 9)),
                     ),
                   )
                   // const Text(

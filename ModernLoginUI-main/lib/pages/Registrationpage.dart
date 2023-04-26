@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter_sms/flutter_sms.dart';
 import 'package:http/http.dart' as http;
 // import 'package:sms/sms.dart';
@@ -105,164 +106,201 @@ class _RegistrationPageState extends State<RegistrationPage> {
     return user;
   }
 
+  late String img;
   @override
   Widget build(BuildContext context) {
     bool hide = true;
     if (widget.message == "family") {
       hide = false;
     }
+    if (Platform.isAndroid || Platform.isIOS) {
+      img = "lib/images/background9.png";
+    } else {
+      img = "lib/images/background10.png";
+    }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Registration Page'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Visibility(
-              visible: !hide,
-              child:
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Text(
-                  'Add a Family member',
-                  style: TextStyle(color: Colors.grey[700], fontSize: 35),
-                ),
-              ]),
-            ),
-            TextFormField(
-              controller: _usernameController,
-              decoration: InputDecoration(
-                labelText: 'Username',
-                border: OutlineInputBorder(),
+        resizeToAvoidBottomInset: false,
+        body: Stack(children: [
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(img),
+                fit: BoxFit.cover,
               ),
             ),
-            SizedBox(height: 16.0),
-            TextFormField(
-              controller: _phoneNumberController,
-              decoration: InputDecoration(
-                labelText: 'Phone Number',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.phone,
-            ),
-            SizedBox(height: 16.0),
-            DateTimeFormField(
-              // controller: _dateOfBirthController,
-              decoration: const InputDecoration(
-                labelText: 'Date of Birth',
-                hintStyle: TextStyle(color: Color.fromARGB(115, 211, 19, 19)),
-                errorStyle: TextStyle(color: Colors.redAccent),
-                border: OutlineInputBorder(),
-                suffixIcon: Icon(Icons.event_note),
-                // labelText: 'Only time',
-              ),
-              mode: DateTimeFieldPickerMode.date,
-              autovalidateMode: AutovalidateMode.always,
-              validator: (e) =>
-                  (e?.day ?? 0) == 1 ? 'Please not the first day' : null,
-              onDateSelected: (DateTime value) {
-                _selectedDate = value;
-              },
-            ),
-            SizedBox(height: 16.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Privilege: ',
-                  style: TextStyle(color: Colors.grey[700]),
+                Visibility(
+                  visible: !hide,
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Add a member',
+                          style: TextStyle(
+                              color: Color.fromARGB(255, 77, 105, 230),
+                              fontSize: 35),
+                        ),
+                      ]),
                 ),
-                DropdownButton(
-                  value: selectedOption,
-                  items: [
-                    DropdownMenuItem(
-                      value: "Main",
-                      child: Text('Main'),
-                    ),
-                    DropdownMenuItem(
-                      value: "Sub",
-                      child: Text('Sub'),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    if (widget.message == "family") {
-                      setState(() {
-                        selectedOption = value;
-                      });
-                    }
-                    // setState(() {
-                    //   selectedOption = value;
-                    // });
+                Visibility(
+                  visible: hide,
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Register',
+                          style: TextStyle(
+                              color: Color.fromARGB(255, 77, 105, 230),
+                              fontSize: 35),
+                        ),
+                      ]),
+                ),
+                SizedBox(height: 16.0),
+                TextFormField(
+                  controller: _usernameController,
+                  decoration: InputDecoration(
+                    labelText: 'Username',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 16.0),
+                TextFormField(
+                  controller: _phoneNumberController,
+                  decoration: InputDecoration(
+                    labelText: 'Phone Number',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.phone,
+                ),
+                SizedBox(height: 16.0),
+                DateTimeFormField(
+                  // controller: _dateOfBirthController,
+                  decoration: const InputDecoration(
+                    labelText: 'Date of Birth',
+                    hintStyle:
+                        TextStyle(color: Color.fromARGB(115, 211, 19, 19)),
+                    errorStyle: TextStyle(color: Colors.redAccent),
+                    border: OutlineInputBorder(),
+                    suffixIcon: Icon(Icons.event_note),
+                    // labelText: 'Only time',
+                  ),
+                  mode: DateTimeFieldPickerMode.date,
+                  autovalidateMode: AutovalidateMode.always,
+                  validator: (e) =>
+                      (e?.day ?? 0) == 1 ? 'Please not the first day' : null,
+                  onDateSelected: (DateTime value) {
+                    _selectedDate = value;
                   },
                 ),
-              ],
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () async {
-                final form = registerForm(
-                    username: _usernameController.text.trim(),
-                    phonenumber: _phoneNumberController.text.trim(),
-                    dateofbirth: DateFormat('yyyy-MM-dd').format(_selectedDate),
-                    privilege: selectedOption,
-                    called_from: widget.message,
-                    user: widget.user);
-                dynamic user = await register(form);
-                if (widget.message == "register") {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => Homepage(
-                              user: user,
-                            )),
-                  );
-                } else {
-                  Navigator.pop(context);
-                }
-              },
-              child: Text('Register'),
-            ),
-            Visibility(
-                visible: hide,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                SizedBox(height: 16.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
-                      'Already a member?',
+                      'Privilege: ',
                       style: TextStyle(color: Colors.grey[700]),
                     ),
-                    const SizedBox(width: 4),
-                    // FloatingActionButton(
-                    //   onPressed: onPressed,
-                    //   tooltip: 'register',
-                    // ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => LoginPage()),
-                        );
+                    DropdownButton(
+                      value: selectedOption,
+                      items: [
+                        DropdownMenuItem(
+                          value: "Main",
+                          child: Text('Main'),
+                        ),
+                        DropdownMenuItem(
+                          value: "Sub",
+                          child: Text('Sub'),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        if (widget.message == "family") {
+                          setState(() {
+                            selectedOption = value;
+                          });
+                        }
+                        // setState(() {
+                        //   selectedOption = value;
+                        // });
                       },
-                      child: Text(
-                        'Login',
-                        style:
-                            TextStyle(color: Color.fromARGB(255, 211, 191, 11)),
-                      ),
-                    )
-                    // const Text(
-                    //   'Register now',
-                    //   style: TextStyle(
-                    //     color: Colors.blue,
-                    //     fontWeight: FontWeight.bold,
-                    //   ),
-                    // ),
+                    ),
                   ],
-                ))
-          ],
-        ),
-      ),
-    );
+                ),
+                SizedBox(height: 16.0),
+                ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                        Color.fromARGB(255, 77, 105, 230)),
+                  ),
+                  onPressed: () async {
+                    final form = registerForm(
+                        username: _usernameController.text.trim(),
+                        phonenumber: _phoneNumberController.text.trim(),
+                        dateofbirth:
+                            DateFormat('yyyy-MM-dd').format(_selectedDate),
+                        privilege: selectedOption,
+                        called_from: widget.message,
+                        user: widget.user);
+                    dynamic user = await register(form);
+                    if (widget.message == "register") {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => Homepage(
+                                  user: user,
+                                )),
+                      );
+                    } else {
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: Text('Register'),
+                ),
+                Visibility(
+                    visible: hide,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Already a member?',
+                          style: TextStyle(color: Colors.grey[700]),
+                        ),
+                        // const SizedBox(width: 4),
+                        // FloatingActionButton(
+                        //   onPressed: onPressed,
+                        //   tooltip: 'register',
+                        // ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => LoginPage()),
+                            );
+                          },
+                          child: Text(
+                            'Login',
+                            style: TextStyle(
+                                color: Color.fromARGB(255, 167, 41, 9)),
+                          ),
+                        )
+                        // const Text(
+                        //   'Register now',
+                        //   style: TextStyle(
+                        //     color: Colors.blue,
+                        //     fontWeight: FontWeight.bold,
+                        //   ),
+                        // ),
+                      ],
+                    ))
+              ],
+            ),
+          ),
+        ]));
   }
 }

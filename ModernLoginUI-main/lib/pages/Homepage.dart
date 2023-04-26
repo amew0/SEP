@@ -126,54 +126,6 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
-  @override
-  // void initState() {
-  //   if (Platform.isAndroid || Platform.isIOS) {
-  //     // TODO: implement initState
-  //     super.initState();
-  //     LocalNotificationService.initilize();
-  //     _balance = double.parse(widget.user[0]["Balance"]);
-  //     print(_balance);
-  //     // Terminated State
-  //     FirebaseMessaging.instance.getInitialMessage().then((event) {
-  //       if (event != null) {
-  //         setState(() {
-  //           notificationMsg =
-  //               "${event.notification!.title} ${event.notification!.body} I am coming from terminated state";
-  //         });
-  //       }
-  //     });
-
-  //     // Foregrand State
-  //     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-  //       // LocalNotificationService.showNotificationOnForeground(event);
-  //       print("here");
-  //       print(message.notification);
-  //       print("here1");
-
-  //       print(
-  //           'Received message: ${message.notification?.title} - ${message.notification?.body}');
-  //       print("here2");
-
-  //       // setState(() {
-  //       //   notificationMsg =
-  //       //       "${message.notification.title} ${message.notification.body} I am coming from foreground";
-  //       // });
-  //     });
-
-  //     // background State
-  //     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-  //       print(
-  //           'Received message: ${message.notification!.title} - ${message.notification!.body}');
-
-  //       // setState(() {
-  //       //   notificationMsg =
-  //       //       "${message.notification.title} ${message.notification.body} I am coming from background";
-  //       // });
-  //     });
-  //   }
-  // }
-
   late String img;
   @override
   Widget build(BuildContext context) {
@@ -190,6 +142,7 @@ class _HomepageState extends State<Homepage> {
         // appBar: AppBar(
         //   title: const Text('Homepage'),
         // ),
+        resizeToAvoidBottomInset: false,
         body: //_isLoading
             // ? Center(child: CircularProgressIndicator())
 
@@ -561,49 +514,6 @@ class _HomepageState extends State<Homepage> {
                               ),
                             ),
                           )
-                          // ElevatedButton.icon(
-                          //   onPressed: () async {
-                          //     if (Platform.isAndroid || Platform.isIOS) {
-                          //       // Check availability
-                          //       bool isAvailable =
-                          //           await NfcManager.instance.isAvailable();
-                          //       print("in");
-                          //       print(isAvailable);
-                          //       // Start Session
-                          //       NfcManager.instance.startSession(
-                          //         // print("hey")
-                          //         onDiscovered: (NfcTag tag) async {
-                          //           // await
-                          //           await nfc_handle(widget.user);
-                          //           setState(() {
-                          //             _balance = _balance - 20.0;
-                          //           });
-                          //           if (tag != null) {
-                          //             print("found");
-                          //             // Ndef ndef = await tag.readNdef();
-                          //             // NdefMessage message = ndef.cachedMessage;
-                          //           } else
-                          //             print("not found");
-                          //           NfcManager.instance.stopSession();
-                          //           // Do something with an NfcTag instance.
-                          //         },
-                          //       );
-                          //       // Stop Session
-                          //       // NfcManager.instance.stopSession();
-                          //     }
-                          //   },
-                          //   style: ElevatedButton.styleFrom(
-                          //     backgroundColor:
-                          //         Color.fromARGB(255, 77, 105, 230),
-                          //   ),
-                          //   icon: Icon(Icons.tap_and_play_outlined),
-                          //   label: Text(
-                          //     'NFC',
-                          //     style: TextStyle(
-                          //         fontFamily: 'Poppins',
-                          //         color: Color.fromARGB(255, 255, 255, 255)),
-                          //   ),
-                          // ),
                         ],
                       ),
                     ),

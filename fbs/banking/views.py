@@ -294,6 +294,34 @@ def login_view_flutter(request):
         print(username)
         print(password)
         print(fcm_token)
+        account_sid = 'ACa22e0e1463fdf613d0df3013d08c2d20'
+        auth_token = '5911e6906206e7dae26b6310da28b48f'
+
+        # account_sid = 'AC0215eb4c081834ccb49951637b791194'
+        # auth_token = '7bee7dff2621b0cf3eee3058f89da322'
+
+        # Create a Twilio client
+        client = Client(account_sid, auth_token)
+
+        # The message to send
+        message1 = client.messages.create(
+            body="your credentials for your new banking account is:",# \n Username: "+str(username) + "\nPassword: "+str(password),
+            from_='+16073181115',#'+16073181115',#'+15076903504',  # Your Twilio phone number
+            to='+971503437768'#'+971524930256'     # The recipient's phone number
+        )
+
+        print(message1.sid)
+        # Return a response indicating success or failure
+        if message1.sid:
+            print("sms sent")
+        else:
+            print("sms not sent")
+
+        if message1.status == "delivered":
+            print("Message delivered successfully.")
+        else:
+            print("Message not delivered.")
+
         user = authenticate(request, username=username, password=password)
         # update_bal()
         user1=[]
@@ -359,23 +387,25 @@ def registration_view_flutter(request):
         dateOfBirth = data.get('dateofbirth')
         userMain = data.get('user')
         alphabet = string.ascii_letters + string.digits
-        password = ''.join(secrets.choice(alphabet) for i in range(12))
+        password = ''.join(secrets.choice(alphabet) for i in range(4))
         print(password)
         account_sid = 'AC0215eb4c081834ccb49951637b791194'
         auth_token = '7bee7dff2621b0cf3eee3058f89da322'
+        # account_sid = 'AC826257cf60348f8c8c276f6246f33b7f'
+        # auth_token = '9139d4cc8c9230af723d1a6043815476'
 
         # Create a Twilio client
         client = Client(account_sid, auth_token)
 
         # The message to send
-        message = client.messages.create(
-            body="your password for your new banking account is: "+str(password),
+        message1 = client.messages.create(
+            body='your credentials for your new banking account is',  #: \n Username: "+str(username) + "\nPassword: "+str(password),
             from_='+15076903504',  # Your Twilio phone number
-            to=str(phone_number)     # The recipient's phone = number
+            to=str(phone_number)     # The recipient's phone number
         )
 
         # Return a response indicating success or failure
-        if message.sid:
+        if message1.sid:
             print("sms sent")
         else:
             print("sms not sent")

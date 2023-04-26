@@ -96,7 +96,8 @@ class _MyBillPopupState extends State<MyBillPopup> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: Color.fromARGB(249, 122, 200, 214).withOpacity(0.8),
+      clipBehavior: Clip.none,
+      backgroundColor: Color.fromARGB(255, 171, 182, 231),
       // backgroundColor: Colors.transparent,
       title: const Text(
         'Bill Form',
@@ -107,7 +108,8 @@ class _MyBillPopupState extends State<MyBillPopup> {
           fontWeight: FontWeight.bold,
         ),
       ),
-      content: Form(
+      content: SingleChildScrollView(
+          child: Form(
         key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -191,7 +193,7 @@ class _MyBillPopupState extends State<MyBillPopup> {
             ]),
           ],
         ),
-      ),
+      )),
       actions: <Widget>[
         ElevatedButton(
           onPressed: () {

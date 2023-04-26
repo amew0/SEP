@@ -150,6 +150,8 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      clipBehavior: Clip.none,
+      backgroundColor: Color.fromARGB(255, 171, 182, 231),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -157,10 +159,17 @@ class _ChatScreenState extends State<ChatScreen> {
             padding: const EdgeInsets.all(8.0),
             child: Text(
               'Chatbot Assistant',
-              style: Theme.of(context).textTheme.headline6,
+              style: TextStyle(
+                color: Color.fromARGB(255, 96, 120, 226),
+                fontSize: 44,
+
+                // fontWeight: FontWeight,
+              ),
+              // style: Theme.of(context).textTheme.headline6,
             ),
           ),
           Flexible(
+            flex: 2,
             child: ListView.builder(
               padding: const EdgeInsets.all(8.0),
               // reverse: true,

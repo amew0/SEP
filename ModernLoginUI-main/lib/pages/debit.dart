@@ -95,6 +95,7 @@ class _MydebitPopupState extends State<MydebitPopup> {
   Widget build(BuildContext context) {
     bool isFinalDateEdittable = true;
     return AlertDialog(
+        clipBehavior: Clip.none,
         backgroundColor: Color.fromARGB(255, 171, 182, 231),
         title: const Text(
           'Debit form',
@@ -106,7 +107,8 @@ class _MydebitPopupState extends State<MydebitPopup> {
             // fontWeight: FontWeight,
           ),
         ),
-        content: Form(
+        content: SingleChildScrollView(
+            child: Form(
           key: _formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -219,7 +221,7 @@ class _MydebitPopupState extends State<MydebitPopup> {
               ),
             ],
           ),
-        ),
+        )),
         actions: <Widget>[
           // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           Row(
