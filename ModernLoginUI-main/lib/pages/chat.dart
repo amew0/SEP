@@ -29,9 +29,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   final String _apiUrl = 'https://api.openai.com/v1/chat/completions';
 
-  final String? _apiKey = Platform.environment['OPENAI_API_KEY'];
+  // final String? _apiKey = Platform.environment['OPENAI_API_KEY'];
 
   Future<String> _getResponse(String prompt) async {
+    final file = File("lib/pages/file.txt");
+    final String _apiKey = file.readAsLinesSync().first;
     if (_apiKey == null) {
       // OpenApiKey not set
       logger.warning("OpenApiKey not set");
@@ -85,7 +87,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // Get [safe] and [salary] from the database
   Future<dynamic> _retrieveSafeSalary(user) async {
-    final url = Uri.parse('http://127.0.0.1:8000/chatbot');
+    final url = Uri.parse('https://fbsbanking.herokuapp.com/chatbot');
     final headers = {'Content-Type': 'application/json'};
 
     final user_ = userForm(

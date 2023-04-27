@@ -46,7 +46,7 @@ class _MydebitPopupState extends State<MydebitPopup> {
 
   Future<bool> debit(debitForm form) async {
     final url = Uri.parse(
-        'http://127.0.0.1:8000/add_debits'); // insert correct API endpoint
+        'https://fbsbanking.herokuapp.com/add_debits'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
     final body = json.encode(form.toJson());
     final response = await http.post(url, headers: headers, body: body);

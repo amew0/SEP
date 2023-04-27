@@ -59,27 +59,9 @@ class Loginpage extends State<LoginPage> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   String? fcm_token;
-  // static const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
-  //   'channelId', // your channel id
-  //   'com.example.fbs', // your channel name
-  //   importance: Importance.high,
-  //   priority: Priority.high,
-  //   enableVibration: true,
-  //   playSound: true,
-  // );
-
-  // // create the notification channel
-  // const NotificationChannel notificationChannel = NotificationChannel(
-  //   'channelId', // your channel id
-  //   'channelName', // your channel name
-  //   'channelDescription', // your channel description
-  //   importance: Importance.high,
-  // );
 
   Future<dynamic> login(LoginForm form) async {
     // https://fbsbanking.herokuapp.com/
-    // getDeviceToken();
-    // form.username = form.username + token_global;
 
     print(form.token);
     print(form.username);
@@ -168,22 +150,6 @@ class Loginpage extends State<LoginPage> {
             'Opened message: ${message.notification?.title} - ${message.notification?.body}');
         // Navigate to the appropriate screen in the app
       });
-      // Foreground State
-      // FirebaseMessaging.onMessage.listen((event) {
-      //   LocalNotificationService.showNotificationOnForeground(event);
-      //   setState(() {
-      //     notificationMsg =
-      //         "${event.notification!.title} ${event.notification!.body} I am coming from foreground";
-      //   });
-      // });
-
-      // // background State
-      // FirebaseMessaging.onMessageOpenedApp.listen((event) {
-      //   setState(() {
-      //     notificationMsg =
-      //         "${event.notification!.title} ${event.notification!.body} I am coming from background";
-      //   });
-      // });
     }
   }
 
@@ -200,15 +166,6 @@ class Loginpage extends State<LoginPage> {
         ],
       ), //const Text('Notification message'),
       content: Text(Body),
-
-      // actions: [
-      //   TextButton(
-      //     child: const Text('OK'),
-      //     onPressed: () {
-      //       Navigator.of(context).pop();
-      //     },
-      //   ),
-      // ],
     );
   }
 
@@ -220,6 +177,7 @@ class Loginpage extends State<LoginPage> {
     } else {
       img = "lib/images/background10.png";
     }
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Color.fromARGB(255, 255, 255, 255),
@@ -304,7 +262,6 @@ class Loginpage extends State<LoginPage> {
               const SizedBox(height: 10),
 
               // sign in button
-              // MyButton(onTap: login()),
               ElevatedButton(
                 onPressed: () async {
                   if (Platform.isAndroid) {
@@ -334,9 +291,6 @@ class Loginpage extends State<LoginPage> {
                 ),
               ),
 
-              // const SizedBox(height: 25),
-
-              // const SizedBox(height: 25),
               // not a member? register now
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -346,10 +300,6 @@ class Loginpage extends State<LoginPage> {
                     style: TextStyle(color: Color.fromARGB(255, 8, 8, 8)),
                   ),
                   const SizedBox(width: 4),
-                  // FloatingActionButton(
-                  //   onPressed: onPressed,
-                  //   tooltip: 'register',
-                  // ),
                   TextButton(
                     onPressed: () {
                       // String message = "register";
@@ -365,13 +315,6 @@ class Loginpage extends State<LoginPage> {
                       style: TextStyle(color: Color.fromARGB(255, 167, 41, 9)),
                     ),
                   )
-                  // const Text(
-                  //   'Register now',
-                  //   style: TextStyle(
-                  //     color: Colors.blue,
-                  //     fontWeight: FontWeight.bold,
-                  //   ),
-                  // ),
                 ],
               )
             ],

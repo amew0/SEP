@@ -60,27 +60,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
   late DateTime _selectedDate;
   String? selectedOption = "Main";
 
-  // Future<void> storeToken(String token) async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   await prefs.setString('auth_token', token);
-  // }
-
-  // Future<String?> getToken() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   return prefs.getString('auth_token');
-  // }
-
-  // void sendSMS(String message, String recipient) {
-  //   SmsSender sender = new SmsSender();
-  //   sender.sendSms(new SmsMessage(
-  //     recipient,
-  //     message,
-  //   ));
-  // }
-
   Future<dynamic> register(registerForm form) async {
     final url = Uri.parse(
-        'http://127.0.0.1:8000/register'); // insert correct API endpoint
+        'https://fbsbanking.herokuapp.com/register'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
     print(form);
     final body = json.encode(form.toJson());
@@ -270,11 +252,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
                           'Already a member?',
                           style: TextStyle(color: Colors.grey[700]),
                         ),
-                        // const SizedBox(width: 4),
-                        // FloatingActionButton(
-                        //   onPressed: onPressed,
-                        //   tooltip: 'register',
-                        // ),
                         TextButton(
                           onPressed: () {
                             Navigator.push(
@@ -289,13 +266,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                 color: Color.fromARGB(255, 167, 41, 9)),
                           ),
                         )
-                        // const Text(
-                        //   'Register now',
-                        //   style: TextStyle(
-                        //     color: Colors.blue,
-                        //     fontWeight: FontWeight.bold,
-                        //   ),
-                        // ),
                       ],
                     ))
               ],

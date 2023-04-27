@@ -53,7 +53,7 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
 
   Future<bool> Allowance(AllowanceForm form) async {
     final url = Uri.parse(
-        'http://127.0.0.1:8000/allowance_api'); // insert correct API endpoint
+        'https://fbsbanking.herokuapp.com/allowance_api'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
     print(form.date);
     final body = json.encode(form.toJson());
@@ -73,7 +73,6 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
         );
       }
     } else {
-      // Failed login
       // throw Exception('Failed to add allowance');
       print("Bill couldn't be created. Please try again.");
       if (context.mounted) {
@@ -92,14 +91,6 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
     return AlertDialog(
       title: const Text('Allowance info'),
       content: Text(response),
-      // actions: [
-      //   TextButton(
-      //     child: const Text('OK'),
-      //     onPressed: () {
-      //       Navigator.of(context).pop();
-      //     },
-      //   ),
-      // ],
     );
   }
 
