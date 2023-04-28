@@ -220,14 +220,26 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         Color.fromARGB(255, 77, 105, 230)),
                   ),
                   onPressed: () async {
-                    final form = registerForm(
-                        username: _usernameController.text.trim(),
-                        phonenumber: _phoneNumberController.text.trim(),
-                        dateofbirth:
-                            DateFormat('yyyy-MM-dd').format(_selectedDate),
-                        privilege: selectedOption,
-                        called_from: widget.message,
-                        user: widget.user);
+                    final form;
+                    if (widget.message == "register") {
+                      form = registerForm(
+                          username: _usernameController.text.trim(),
+                          phonenumber: _phoneNumberController.text.trim(),
+                          dateofbirth:
+                              DateFormat('yyyy-MM-dd').format(_selectedDate),
+                          privilege: selectedOption,
+                          called_from: widget.message,
+                          user: []);
+                    } else {
+                      form = registerForm(
+                          username: _usernameController.text.trim(),
+                          phonenumber: _phoneNumberController.text.trim(),
+                          dateofbirth:
+                              DateFormat('yyyy-MM-dd').format(_selectedDate),
+                          privilege: selectedOption,
+                          called_from: widget.message,
+                          user: widget.user);
+                    }
                     dynamic user = await register(form);
                     if (widget.message == "register") {
                       Navigator.push(

@@ -38,13 +38,7 @@
   </script>
   <!-- This script adds the flutter initialization JS code -->
   <script src="flutter.js" defer></script>
-  <script>
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", function () {
-        navigator.serviceWorker.register("/firebase-messaging-sw.js");
-      });
-    }
-  </script>
+  
 </head>
 <body>
   <script>
@@ -61,28 +55,6 @@
       });
     });
   </script>
-  <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-analytics.js";
-    // TODO: Add SDKs for Firebase products that you want to use
-    // https://firebase.google.com/docs/web/setup#available-libraries
   
-    // Your web app's Firebase configuration
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-    const firebaseConfig = {
-      apiKey: "AIzaSyAYpOpo_fRCEgDw3HhGxaYuuwDo5me8_jU",
-      authDomain: "sep-project-72f97.firebaseapp.com",
-      projectId: "sep-project-72f97",
-      storageBucket: "sep-project-72f97.appspot.com",
-      messagingSenderId: "1005077484779",
-      appId: "1:1005077484779:web:0369c7c16880358c389aae",
-      measurementId: "G-Z52GSN6PNZ"
-    };
-  
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-  </script>
 </body>
 </html>

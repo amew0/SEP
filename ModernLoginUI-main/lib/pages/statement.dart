@@ -23,12 +23,12 @@ class StatementPopup extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Transactions',
+                  'History',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Color.fromARGB(255, 77, 105, 230),
                     fontWeight: FontWeight.bold,
-                    fontSize: 40,
+                    fontSize: 30,
                   ),
                 ),
                 IconButton(

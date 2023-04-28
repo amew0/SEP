@@ -33,6 +33,8 @@ import requests
 from .models import *
 import os
 import boto3
+import smtplib
+from django.core.mail import send_mail
 
 
 cred = credentials.Certificate('sep-project-72f97-firebase-adminsdk-r2pjg-58123de2b9.json')
@@ -186,9 +188,6 @@ def login_view_flutter(request):
         print(username)
         print(password)
         print(fcm_token)
-        account_sid = 'ACa22e0e1463fdf613d0df3013d08c2d20'
-        auth_token = '5911e6906206e7dae26b6310da28b48f'
-
         
 
         user = authenticate(request, username=username, password=password)
@@ -205,15 +204,18 @@ def login_view_flutter(request):
             today = date.today()
             two_days_ahead = today + timedelta(days=2)
             print(two_days_ahead.day)
+            print(two_days_ahead.month)
             # Filter the allowances list to include only those with userSub
             # whose date of birth is two days ahead of today
             birthdays = []
             for allowance in allowances:
                 user_sub = allowance.userSub
                 dob = user_sub.dateOfBirth
+                print(dob.day)
                 print(dob.month)
-                if dob.day == two_days_ahead.day & dob.month == two_days_ahead.month:
-                    birthdays.append(user_sub.Username)
+                if dob.day == two_days_ahead.day and dob.month == two_days_ahead.month:
+                    birthdays.append(user_sub.username)
+                    print(user_sub.username)
             print(birthdays)
             # The birthdays list should contain all the dates of birth
             # that are two days ahead for the given user's sub-users
@@ -223,7 +225,7 @@ def login_view_flutter(request):
                 message = messaging.Message (
                     notification=messaging.Notification(
                         title = 'Upcoming Birthdays',
-                        body =string(birthdays),
+                        body =str(birthdays),
                     ),
                     token=fcm_token,
                 )
@@ -252,7 +254,9 @@ def registration_view_flutter(request):
         username = data.get('username')
         phone_number = data.get('phonenumber')
         dateOfBirth = data.get('dateofbirth')
-        userMain = data.get('user')
+        called_from = data.get('called_from')
+        if(called_from=='family'):
+            userMain = data.get('user')
         alphabet = string.ascii_letters + string.digits
         password = ''.join(secrets.choice(alphabet) for i in range(4))
         print(password)
@@ -264,7 +268,7 @@ def registration_view_flutter(request):
         client = boto3.client('sns',region_name = AWS_REGION,aws_access_key_id=AWS_ACCESS_KEY_ID,
         aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
 
-
+        # send generated password to phone number
         response = client.publish(
             TopicArn='arn:aws:sns:eu-north-1:758164060941:sms_password',
             
@@ -272,9 +276,22 @@ def registration_view_flutter(request):
             
         )
 
+        # also send email just in case sms does not work
+        sender = "FBS <no-reply@familybamk.herokuapp.com>"
+        receiver = f"<{username}>"
+        subject = "New Family Bank account"
+        body = f"""\
+        To: {receiver}
+        From: {sender}
+
+        'Your details for your new FamilyBank account are:
+        Username: {username}
+        Password: {password}"""
+        send_mail(subject, body, sender, [receiver], fail_silently=False)
+        print("email sent")
 
         privilege = data.get('privilege')
-        called_from = data.get('called_from')
+        
         if called_from == "register":
             account = CreditCardDetail.objects.get(phoneNumber=phone_number)
             update_bal(phone_number)
