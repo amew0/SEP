@@ -62,7 +62,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   Future<dynamic> register(registerForm form) async {
     final url = Uri.parse(
-        'https://fbsbanking.herokuapp.com/register'); // insert correct API endpoint
+        'https://familybank.herokuapp.com/register'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
     print(form);
     final body = json.encode(form.toJson());

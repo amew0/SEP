@@ -43,9 +43,7 @@ def index(request):
     # print(request.user.linked_accounts.all())
     linked_accounts = request.user.linked_accounts.all() if request.user.is_authenticated else None
     
-    return render(request, "banking/index.html",{
-        "linked_accounts": linked_accounts
-    })
+    return HttpResponse("<h1>Welcome to the Family Banking System.</h1>")
 
 EMAIL = "a@a.a"
 
@@ -260,12 +258,8 @@ def registration_view_flutter(request):
         print(password)
         
         AWS_REGION = 'eu-north-1'
-        with open ("string.txt") as file:
-            AWS_ACCESS_KEY_ID = file.readline()[:-1]
-            AWS_SECRET_ACCESS_KEY = file.readline()[:-1]
-
-        # AWS_ACCESS_KEY_ID = os.environ['AWS_SUB_ACCESS_KEY_ID']
-        # AWS_SECRET_ACCESS_KEY = os.environ['AWS_SUB_SECRET_ACCESS_KEY']
+        AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
+        AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
         
         client = boto3.client('sns',region_name = AWS_REGION,aws_access_key_id=AWS_ACCESS_KEY_ID,
         aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
@@ -370,6 +364,9 @@ def allowance_api(request):
         
         if(instant & (CreditCardDetail.objects.get(phoneNumber = user[0]['Phone']).balance > amount)):
             allowance.allowance += amount
+            acc =  CreditCardDetail.objects.get(phoneNumber = user[0]['Phone'])
+            acc.balance -= amount
+            acc.save()
         allowance.dateTime=date_formatted
         allowance.save()
         statSub=" Received an allowance of "+ str(amount)+ " AED from Main "

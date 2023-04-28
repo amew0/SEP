@@ -53,7 +53,7 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
 
   Future<bool> Allowance(AllowanceForm form) async {
     final url = Uri.parse(
-        'https://fbsbanking.herokuapp.com/allowance_api'); // insert correct API endpoint
+        'https://familybank.herokuapp.com/allowance_api'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
     print(form.date);
     final body = json.encode(form.toJson());
@@ -204,9 +204,12 @@ class _MyallowancePopupState extends State<MyallowancePopup> {
               bool successful = await Allowance(form);
               // Do something with the form data, e.g. submit to server
               await Future.delayed(const Duration(seconds: 1));
+
               Navigator.of(context).pop(AmountAllowance);
-              if (successful) {
+              if (successful && _isChecked) {
                 Navigator.of(context).pop(AmountAllowance);
+              } else if (successful && !_isChecked) {
+                Navigator.of(context).pop(0);
               }
             }
           },

@@ -67,7 +67,7 @@ class Loginpage extends State<LoginPage> {
     print(form.username);
 
     final url = Uri.parse(
-        'https://fbsbanking.herokuapp.com/login_flutter'); // insert correct API endpoint
+        'https://familybank.herokuapp.com/login_flutter'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
     final body = json.encode(form.toJson());
     final response = await http.post(url, headers: headers, body: body);

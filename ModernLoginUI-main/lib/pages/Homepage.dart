@@ -58,7 +58,7 @@ class _HomepageState extends State<Homepage> {
       user: user,
     );
     final url = Uri.parse(
-        'https://fbsbanking.herokuapp.com/nfc'); // insert correct API endpoint
+        'https://familybank.herokuapp.com/nfc'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
     final body = json.encode(form.toJson());
     final response = await http.post(url, headers: headers, body: body);
@@ -76,7 +76,7 @@ class _HomepageState extends State<Homepage> {
       user: user,
     );
     final url = Uri.parse(
-        'https://fbsbanking.herokuapp.com/statement'); // insert correct API endpoint
+        'https://familybank.herokuapp.com/statement'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
 
     final body = json.encode(form.toJson());
@@ -106,7 +106,7 @@ class _HomepageState extends State<Homepage> {
       user: user,
     );
     final url = Uri.parse(
-        'https://fbsbanking.herokuapp.com/logout'); // insert correct API endpoint
+        'https://familybank.herokuapp.com/logout'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
     // for (dynamic item in user1) {
     //   user.add(item.toJson());

@@ -51,7 +51,7 @@ class _MyBillPopupState extends State<MyBillPopup> {
   double AmountBill = 0.0;
   Future<bool> bill(billForm form) async {
     final url = Uri.parse(
-        'https://fbsbanking.herokuapp.com/pay_bills'); // insert correct API endpoint
+        'https://familybank.herokuapp.com/pay_bills'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
     final body = json.encode(form.toJson());
     final response = await http.post(url, headers: headers, body: body);

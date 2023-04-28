@@ -43,10 +43,11 @@ class _MydebitPopupState extends State<MydebitPopup> {
   TextEditingController debit_name = TextEditingController();
   TextEditingController debit_amount = TextEditingController();
   late DateTime? _selectedDate;
-
+  // https://familybank.herokuapp.com/
+  // http://127.0.0.1:8000
   Future<bool> debit(debitForm form) async {
     final url = Uri.parse(
-        'https://fbsbanking.herokuapp.com/add_debits'); // insert correct API endpoint
+        'https://familybank.herokuapp.com/add_debits'); // insert correct API endpoint
     final headers = {'Content-Type': 'application/json'};
     final body = json.encode(form.toJson());
     final response = await http.post(url, headers: headers, body: body);
@@ -173,8 +174,8 @@ class _MydebitPopupState extends State<MydebitPopup> {
                   if (value!.isNotEmpty) {
                     double? amount = double.tryParse(debit_amount.text);
                     double? installment = double.tryParse(value);
-                    if (installment! > amount!) {
-                      return "Installment can't be greater than Debit Amount";
+                    if (installment! >= amount!) {
+                      return "Installment can't be more than Debit Amount";
                     }
                   }
                   return null;
@@ -183,7 +184,7 @@ class _MydebitPopupState extends State<MydebitPopup> {
                   // This is not working for some reason
                   if (value.isNotEmpty) {
                     setState(() {
-                      _selectedDate = null;
+                      _selectedDate = DateTime.now();
                     });
                   }
                 },
@@ -202,9 +203,11 @@ class _MydebitPopupState extends State<MydebitPopup> {
                 mode: DateTimeFieldPickerMode.date,
                 autovalidateMode: AutovalidateMode.always,
                 validator: (e) {
-                  if (e != null &&
-                      e.isBefore(DateTime.now().add(Duration(days: 31)))) {
-                    return 'Please choose a date at least a month ahead from now';
+                  if (e == null) {
+                    return 'Please choose a date.';
+                  } else if (e
+                      .isBefore(DateTime.now().add(Duration(days: 31)))) {
+                    return 'Date should be at least a month ahead from now';
                   }
                   return null;
                 },

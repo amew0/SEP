@@ -29,9 +29,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   final String _apiUrl = 'https://api.openai.com/v1/chat/completions';
 
-  // final String? _apiKey = Platform.environment['OPENAI_API_KEY'];
-
-  Future<String> _getResponse(String prompt) async {
+  Future<String> _getResponse(String prompt, String safeNsalary) async {
+    // add the api here
     final file = File("lib/pages/file.txt");
     final String _apiKey = file.readAsLinesSync().first;
     if (_apiKey == null) {
@@ -53,6 +52,7 @@ class _ChatScreenState extends State<ChatScreen> {
     var response =
         await http.post(Uri.parse(_apiUrl), headers: headers, body: body);
     var data = jsonDecode(response.body);
+    String res = data['choices'][0]['message']['content'];
     return data['choices'][0]['message']['content'];
   }
 
@@ -69,7 +69,7 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {
       _messages.add({'role': 'user', 'content': text});
     });
-    var response = await _getResponse(_messages[0]['content']!);
+    var response = await _getResponse(_messages[0]['content']!, "");
     setState(() {
       _messages.add({'role': 'assistant', 'content': response});
     });
@@ -77,17 +77,15 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _handleSystemPrompt(String sysPrompt, String safeNsalary) async {
+    String prompt = "$safeNsalary\n$sysPrompt\n";
     setState(() {
-      _messages.add({'role': 'system', 'content': safeNsalary});
-    });
-    setState(() {
-      _messages.add({'role': 'system', 'content': sysPrompt});
+      _messages.add({'role': 'system', 'content': prompt});
     });
   }
 
   // Get [safe] and [salary] from the database
   Future<dynamic> _retrieveSafeSalary(user) async {
-    final url = Uri.parse('https://fbsbanking.herokuapp.com/chatbot');
+    final url = Uri.parse('https://familybank.herokuapp.com/chatbot');
     final headers = {'Content-Type': 'application/json'};
 
     final user_ = userForm(
@@ -107,16 +105,28 @@ class _ChatScreenState extends State<ChatScreen> {
     return safeNsalary;
   }
 
+  // String sysPrompt = """
+  //     You are an intelligent assistant and will be used in a family banking platform. Typically users will ask you content related to managing their financial position.
+  //     If the query is not financial question make sure to let them know that you are not designed for that in a professional manner. Yet, if if it is a conversation starter like 'how are you?' go ahead interact with them.
+  //     Make your respones short and to the point, and strictly not more than 20 words / tokens.
+  //     Your main task is the following (in addition to the above potential prompts)
+  //     Note: Do not say "As an AI language model, I dont have access to your personal information" because you do have access to that for two purposes.
+  //     If the user asks 1. 'how much is it safe to spend?' or 2. 'how much will it be safe to spend after my salary is released?' or a question that semantically looks like them reply with the following:
+  //     """;
   String sysPrompt = """
       You are an intelligent assistant and will be used in a family banking platform. Typically users will ask you content related to managing their financial position.
-      If the query is not financial question make sure to let them know that you are not designed for that in a professional manner. Yet, if if it is a conversation starter like 'how are you?' go ahead interact with them.
-      Your main task is the following (in addition to the above potential prompts) 
-      If the user asks 'how much is it safe to spend?' or a question that semantically looks like inform them the above prompt of the amount safe to spend now and on the 28th after the salary is released.
-      Make your respones short and to the point, and strictly not more than 20 words / tokens.
-      If the values are not provided to you yet, reply with I can not process your request right now, in a polite manner.
+      Round up an digit you output to two decimal places.
+      Your main task is the following (in addition to the above potential prompts)
+      If the user asks 1. 'how much is it safe to spend?' or 2. 'how much will it be safe to spend after my salary is released?'
       """;
+  bool first = true;
 
   Widget _buildTextComposer() {
+    if (first) {
+      _retrieveSafeSalary(widget.user)
+          .then((value) => _handleSystemPrompt(sysPrompt, value));
+      first = false;
+    }
     return IconTheme(
       data: IconThemeData(color: Theme.of(context).accentColor),
       child: Container(
@@ -136,8 +146,6 @@ class _ChatScreenState extends State<ChatScreen> {
               child: IconButton(
                   icon: const Icon(Icons.send),
                   onPressed: () {
-                    _retrieveSafeSalary(widget.user)
-                        .then((value) => _handleSystemPrompt(sysPrompt, value));
                     if (_textController.text.isNotEmpty) {
                       _handleSubmitted(_textController.text);
                     }
